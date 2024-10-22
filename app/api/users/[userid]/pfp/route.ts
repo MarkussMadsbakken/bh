@@ -1,5 +1,6 @@
 
 import { auth } from "@/util/auth";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const GET = auth(async function GET(req, ctx: { params?: Record<string, string | string[]> }) {
@@ -10,14 +11,17 @@ export const GET = auth(async function GET(req, ctx: { params?: Record<string, s
     const params = await ctx.params;
 
     // Get user memberships
-    const user = await fetch(`https://api.tihlde.org/users/${params?.userid}/`, {
-        headers: {
-            "X-Csrf-Token": req.auth.user.token,
+    const user = await fetch(`https://api.tihlde.org/users/${params?.userid}/`,
+        {
+            headers: {
+                "method": "GET",
+                "X-Csrf-Token": req.auth.user.token
+            }
         }
-    }).then(res => res.json());
+    )
+        .then(res => res.json());
 
     return NextResponse.json(user.image);
-
 })
 
 

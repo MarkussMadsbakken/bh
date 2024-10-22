@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Open_Sans } from 'next/font/google'
 import "./globals.css";
 import LayoutWrapper from "@/components/layoutwrapper";
-import Sidebar from "@/components/sidebar";
+import Sidebar from "@/components/topbar";
+import Topbar from "@/components/topbar";
 
 const open = Open_Sans({ subsets: ['latin'] })
 
@@ -16,13 +17,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <html lang="en">
       <body
         className={`${open.className}`}
       >
         <LayoutWrapper>
-          <Sidebar />
+          <Topbar />
           {children}
         </LayoutWrapper>
       </body>
