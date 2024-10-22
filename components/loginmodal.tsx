@@ -25,7 +25,7 @@ export default function LoginModal({ onFinish, onCancel }: { onFinish?: () => vo
     }
 
     return (
-        <Modal>
+        <Modal onClose={onCancel}>
             <h3 className="text-lg font-medium text-gray-900 text-center w-full">Log in</h3>
             <div className="flex flex-col space-y-3 mt-6 mb-4">
                 <TextInput placeholder="Username" className="h-12" onChange={setUsername} />

@@ -1,5 +1,5 @@
 import { Role, roles } from "@/types/permissions";
-import NextAuth from "next-auth"
+import NextAuth, { User } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -51,15 +51,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
             });
 
-            // Check if admin (todo)
+            // TODO: Check if admin (når embret gir med jævla serveren)
 
             return {
                 name: credentials.username,
                 token: data.token,
                 role: role
-            }
+            } as User
         }
     })],
+
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.token = user.token;
+                token.role = user.role;
+            }
+            return token;
+        },
+
+        session({ session, token }) {
+            session.user.token = token.token;
+            session.user.role = token.role;
+            return session;
+        }
+    },
 
     pages: {
     }
