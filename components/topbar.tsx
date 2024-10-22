@@ -22,38 +22,54 @@ export default function Topbar() {
     })
 
     return (
-        <div className="left-0 top-0 w-screen flex flex-row h-20 z-50">
-            <div className="flex flex-row w-1/2">
-                <Link href="/">
-                    Hjem
-                </Link>
-            </div>
-            <div ref={accountOptionRef} className={`ml-auto flex flex-col w-fit m-4 justify-center ${accountOptionOpen ? "absolute right-0 top-0 border-neutral-200 border rounded-md shadow-lg z-40 p-4 h-fit transition-all duration-300" : "relative h-20 align-middle"}`}>
-                <motion.div layout className="self-center">
-                    <ProfilePic userid={session.data?.user.name || ""} onclick={() => {
-                        if (!session.data?.user) {
-                            setLoginModalOpen(true);
-                        } else {
-                            setAccountOptionOpen(!accountOptionOpen);
-                        }
+        <>
+            <div className="w-full h-fit fixed backdrop-blur-xl">
+                <div className="left-0 top-0 max-w-3xl z-50 ml-auto mr-auto p-2 h-24 relative">
+                    <div className="relatve flex flex-row h-full w-full justify-between">
+                        <div className="flex flex-row w-1/2 space-x-4 self-center" >
+                            <TopbarLink href="/">Hjem</TopbarLink>
+                            <TopbarLink href="/brygg">Brygg</TopbarLink>
+                        </div>
+                        <div ref={accountOptionRef} className={`ml-auto  flex flex-col justify-center ${accountOptionOpen ? "absolute bg-white rounded-lg    shadow-lg z-50 p-4 h-fit transition-all duration-300 right-0 " : "relative h-20 align-middle"}`}>
+                            <motion.div layout className="self-center">
+                                <ProfilePic userid={session.data?.user.name || ""} onclick={() => {
+                                    if (!session.data?.user) {
+                                        setLoginModalOpen(true);
+                                    } else {
+                                        setAccountOptionOpen(!accountOptionOpen);
+                                    }
 
-                    }} />
-                </motion.div>
+                                }} />
+                            </motion.div>
 
-                {loginModalOpen && <LoginModal onCancel={() => setLoginModalOpen(false)} onFinish={() => setLoginModalOpen(false)} />}
-                {accountOptionOpen &&
-                    <div className="flex flex-col pt-6 text-center justify-center align-middle w-44">
-                        {session.data?.user.name}
-                        <Separator />
-                        <Button variant="primary" className="mt-2" onClick={() => {
-                            setAccountOptionOpen(false);
-                            redirect(`/users/${session.data?.user.name}`);
-                        }} >
-                            Profil
-                        </Button>
-                        <Button variant="primary" className="mt-2" onClick={() => signOut()}>Logg ut</Button>
-                    </div>}
+                            {loginModalOpen && <LoginModal onCancel={() => setLoginModalOpen(false)} onFinish={() => setLoginModalOpen(false)} />}
+                            {accountOptionOpen &&
+                                <div className="flex flex-col pt-6 text-center justify-center align-middle w-44">
+                                    {session.data?.user.name}
+                                    <Separator />
+                                    <Button variant="primary" className="mt-2" onClick={() => {
+                                        setAccountOptionOpen(false);
+                                        redirect(`/users/${session.data?.user.name}`);
+                                    }} >
+                                        Profil
+                                    </Button>
+                                    <Button variant="primary" className="mt-2" onClick={() => signOut()}>Logg ut</Button>
+                                </div>}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div className="h-24 w-full" />
+        </>
+    )
+}
+
+function TopbarLink({ href, children }: { href: string, children: React.ReactNode }) {
+    return (
+        <Link href={href} className="p-2 border h-16 w-24 flex justify-center align-middle rounded-lg">
+            <div className="self-center font-normal">
+                {children}
+            </div>
+        </Link>
     )
 }
