@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react"
 import { useCountdown } from "usehooks-ts"
+import DetBrygges from "./detbrygges";
 
 export default function BryggCountdown({ when }: { when: Date }) {
     const now = new Date()
@@ -12,6 +13,12 @@ export default function BryggCountdown({ when }: { when: Date }) {
     const [min, setMin] = useState(0);
     const [hour, setHour] = useState(0);
     const [days, setDays] = useState(0);
+
+    if (diff < 0) {
+        return (
+            <DetBrygges />
+        )
+    }
 
     const [cd, { startCountdown, stopCountdown }] = useCountdown({
         countStart: Math.floor(diff / 1000),
@@ -32,8 +39,10 @@ export default function BryggCountdown({ when }: { when: Date }) {
 
     return (
         <>
-            Neste brygging om:
-            <div className="flex flex-row h-14">
+            <div className="font-normal text-xl">
+                Neste brygging om:
+            </div>
+            <div className="flex flex-row h-18">
                 {(loaded) &&
                     <>
                         <CountdownNumber number={days} />
@@ -50,14 +59,16 @@ export default function BryggCountdown({ when }: { when: Date }) {
 function CountdownNumber({ number }: { number: number }) {
     return (
         <AnimatePresence mode="popLayout">
-            <motion.div className="text-3xl font-bold w-10 max-w-10 m-2"
+            <motion.div className="text-3xl font-bold w-14 max-w-14 m-2 border rounded-lg p-2"
                 initial={{ opacity: 0, rotateX: -180 }}
                 animate={{ opacity: [0, 0, 1], y: 0, rotateX: 0 }}
                 exit={{ opacity: [1, 1, 0, 0, 0], scale: 1, rotateX: 180, x: [-8, -8], y: [-8, -8] }}
                 key={number}
                 transition={{ duration: 0.25 }}
             >
-                {number > 9 ? number : `0${number}`}
+                <div className="text-center">
+                    {number > 9 ? number : `0${number}`}
+                </div>
             </motion.div>
         </AnimatePresence>
     )

@@ -23,7 +23,7 @@ export default function Topbar() {
 
     return (
         <>
-            <div className="w-full h-fit fixed backdrop-blur-xl">
+            <div className="w-full h-fit fixed backdrop-blur-xl z-[100]">
                 <div className="left-0 top-0 max-w-3xl z-50 ml-auto mr-auto p-2 h-24 relative">
                     <div className="relatve flex flex-row h-full w-full justify-between">
                         <div className="flex flex-row w-1/2 space-x-4 self-center" >
@@ -42,7 +42,6 @@ export default function Topbar() {
                                 }} />
                             </motion.div>
 
-                            {loginModalOpen && <LoginModal onCancel={() => setLoginModalOpen(false)} onFinish={() => setLoginModalOpen(false)} />}
                             {accountOptionOpen &&
                                 <div className="flex flex-col pt-6 text-center justify-center align-middle w-44">
                                     {session.data?.user.name}
@@ -59,6 +58,7 @@ export default function Topbar() {
                     </div>
                 </div>
             </div>
+            {loginModalOpen && <LoginModal onCancel={() => setLoginModalOpen(false)} onFinish={() => setLoginModalOpen(false)} />}
             <div className="h-24 w-full" />
         </>
     )
