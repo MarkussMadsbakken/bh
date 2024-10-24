@@ -23,7 +23,7 @@ export default function Topbar() {
 
     return (
         <>
-            <div className="w-full h-fit fixed backdrop-blur-xl z-[100]">
+            <div className="w-full h-fit fixed backdrop-blur-xl z-[100] bg-[#fae296]">
                 <div className="left-0 top-0 max-w-3xl z-50 ml-auto mr-auto p-2 h-24 relative">
                     <div className="relatve flex flex-row h-full w-full justify-between">
                         <div className="flex flex-row w-1/2 space-x-4 self-center" >
@@ -66,7 +66,7 @@ export default function Topbar() {
 
 function TopbarLink({ href, children }: { href: string, children: React.ReactNode }) {
     return (
-        <Link href={href} className="p-2 border h-16 w-24 flex justify-center align-middle rounded-lg">
+        <Link href={href} className="p-2 h-16 w-24 flex justify-center align-middle rounded-lg bg-neutral-100">
             <div className="self-center font-normal">
                 {children}
             </div>

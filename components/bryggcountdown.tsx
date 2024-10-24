@@ -59,7 +59,7 @@ export default function BryggCountdown({ when }: { when: Date }) {
 function CountdownNumber({ number }: { number: number }) {
     return (
         <AnimatePresence mode="popLayout">
-            <motion.div className="text-3xl font-bold w-14 max-w-14 m-2 border rounded-lg p-2"
+            <motion.div className="text-3xl font-bold w-14 max-w-14 m-2 rounded-lg p-2 bg-neutral-100"
                 initial={{ opacity: 0, rotateX: -180 }}
                 animate={{ opacity: [0, 0, 1], y: 0, rotateX: 0 }}
                 exit={{ opacity: [1, 1, 0, 0, 0], scale: 1, rotateX: 180, x: [-8, -8], y: [-8, -8] }}
