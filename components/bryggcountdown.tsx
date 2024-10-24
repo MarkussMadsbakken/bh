@@ -53,7 +53,7 @@ function CountdownNumber({ number }: { number: number }) {
             <motion.div className="text-3xl font-bold w-10 max-w-10 m-2"
                 initial={{ opacity: 0, rotateX: -180 }}
                 animate={{ opacity: [0, 0, 1], y: 0, rotateX: 0 }}
-                exit={{ opacity: [1, 1, 0, 0, 0], scale: 1, rotateX: 180, x: [-8.5, -8.5], y: [-8, -8] }}
+                exit={{ opacity: [1, 1, 0, 0, 0], scale: 1, rotateX: 180, x: [-8, -8], y: [-8, -8] }}
                 key={number}
                 transition={{ duration: 0.25 }}
             >
