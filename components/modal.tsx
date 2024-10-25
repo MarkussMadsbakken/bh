@@ -31,10 +31,10 @@ export default function Modal(props: ModalProps) {
     })
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} role="dialog" className="relative z-10" aria-labelledby="modal-title" aria-modal="true">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} role="dialog" className="relative z-[999]" aria-labelledby="modal-title" aria-modal="true">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
                     <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
                         {(tabs && tabs.length != 0) &&
                             <>

@@ -1,9 +1,9 @@
 
 import { auth } from "@/util/auth";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-export const GET = auth(async function GET(req, ctx: { params?: Record<string, string | string[]> }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const GET = auth(async function GET(req, ctx) {
     if (!req.auth) {
         return NextResponse.json({ message: "Not authenticated" }, { status: 401 })
     }

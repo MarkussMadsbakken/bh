@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Open_Sans } from 'next/font/google'
 import "./globals.css";
 import LayoutWrapper from "@/components/layoutwrapper";
-import Topbar from "@/components/topbar";
 import PageEnter from "@/components/pageenter";
 
 const open = Open_Sans({ subsets: ['latin'] })

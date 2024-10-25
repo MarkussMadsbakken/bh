@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  username      String // We need to store usernames and images because they
+  image         String // otherwise cannot be fetched without a tihlde user
+  Role          Role           @default(MEMBER)
+  Post          Post[]
+  Quotes        Quote[]
+  QuotesCreated Quote[]        @relation("QuoteCreated")
+  Attendance    Attendance[]
+  EventComment  EventComment[]
+}
+
+enum Role {
+  LEADER
+  ADMIN
+  MEMBER
+  GUEST
+}
+
+// News post
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Items we have in inventory, for both external and internal use
+model InventoryItem {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  images      String[]
+  quantity    Int // Might remove this, depends on if we want to manually track quantity
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quote {
+  id          Int      @id @default(autoincrement())
+  quote       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [userId], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id], name: "QuoteCreated")
+  userId      Int
+  createdById Int
+}
+
+// Brygginger
+model Event {
+  id           Int            @id @default(autoincrement())
+  title        String
+  description  String
+  location     String
+  when         DateTime
+  Attendance   Attendance[]
+  EventComment EventComment[]
+}
+
+// Attendance for events
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+  present   Boolean
+  userId    Int
+  eventId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EventComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  author    User     @relation(fields: [userId], references: [id])
+  userId    Int
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//Utlegg?

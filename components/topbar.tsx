@@ -1,21 +1,21 @@
 "use client"
 
 import { signOut, useSession } from "next-auth/react"
-import { useEffect, useRef, useState } from "react";
-import LoginModal from "./loginmodal";
+import { useRef, useState } from "react";
 import ProfilePic from "./profilepic";
 import { useClickOutside } from "@/util/hooks";
 import { Button } from "./input";
 import Separator from "./separator";
-import { animate, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { useLoginModal } from "@/util/loginprovider";
 
 export default function Topbar() {
     const session = useSession();
-    const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [accountOptionOpen, setAccountOptionOpen] = useState(false);
     const accountOptionRef = useRef<HTMLDivElement>(null);
+    const loginModal = useLoginModal();
 
     useClickOutside(accountOptionRef, () => {
         setAccountOptionOpen(false);
@@ -34,7 +34,7 @@ export default function Topbar() {
                             <motion.div layout className="self-center">
                                 <ProfilePic userid={session.data?.user.name || ""} onclick={() => {
                                     if (!session.data?.user) {
-                                        setLoginModalOpen(true);
+                                        loginModal.open();
                                     } else {
                                         setAccountOptionOpen(!accountOptionOpen);
                                     }
@@ -58,7 +58,6 @@ export default function Topbar() {
                     </div>
                 </div>
             </div>
-            {loginModalOpen && <LoginModal onCancel={() => setLoginModalOpen(false)} onFinish={() => setLoginModalOpen(false)} />}
             <div className="h-24 w-full" />
         </>
     )

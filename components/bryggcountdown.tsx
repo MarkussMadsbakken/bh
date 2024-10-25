@@ -14,13 +14,7 @@ export default function BryggCountdown({ when }: { when: Date }) {
     const [hour, setHour] = useState(0);
     const [days, setDays] = useState(0);
 
-    if (diff < 0) {
-        return (
-            <DetBrygges />
-        )
-    }
-
-    const [cd, { startCountdown, stopCountdown }] = useCountdown({
+    const [cd, { startCountdown }] = useCountdown({
         countStart: Math.floor(diff / 1000),
         intervalMs: 1000,
     })
@@ -36,6 +30,12 @@ export default function BryggCountdown({ when }: { when: Date }) {
         setHour(Math.floor(cd / 3600) % 24);
         setDays(Math.floor(cd / 86400));
     }, [cd])
+
+    if (diff < 0) {
+        return (
+            <DetBrygges />
+        )
+    }
 
     return (
         <>

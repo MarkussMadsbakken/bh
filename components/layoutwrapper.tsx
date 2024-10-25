@@ -1,3 +1,4 @@
+import { LoginProvider } from "@/util/loginprovider";
 import { SessionProvider } from "next-auth/react";
 export default function LayoutWrapper({
     children,
@@ -5,7 +6,9 @@ export default function LayoutWrapper({
 
     return (
         <SessionProvider>
-            {children}
+            <LoginProvider>
+                {children}
+            </LoginProvider>
         </SessionProvider>
     )
 }

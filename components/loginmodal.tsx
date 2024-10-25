@@ -1,7 +1,7 @@
 "use client"
 import { useRef, useState } from "react";
 import { Button, TextInput } from "./input";
-import Modal, { ModalTab } from "./modal";
+import Modal from "./modal";
 import { signIn } from "next-auth/react";
 
 export default function LoginModal({ onFinish, onCancel }: { onFinish?: () => void, onCancel?: () => void }) {

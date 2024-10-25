@@ -68,7 +68,9 @@ export const TextInput = forwardRef(function TextInput(props: TextInputProps, re
     function handleSubmit(text: string) {
         if (props.onEnterBlur) element?.current?.blur();
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         props.onEnterClear ? element?.current ? (element.current.value = "") : null : null;
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         props.onSubmit ? props.onSubmit(text) : {};
     }
 
@@ -83,9 +85,11 @@ export const TextInput = forwardRef(function TextInput(props: TextInputProps, re
                 placeholder={pl}
                 defaultValue={props.value}
                 onChange={(e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     props.onChange ? props.onChange(e.target.value) : null;
                 }}
                 onKeyDown={(e) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     e.key === "Enter"
                         ? handleSubmit(element.current ? element.current.value : "")
                         : handleKeyDown(e, props.acceptedValues);

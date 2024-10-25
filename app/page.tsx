@@ -1,4 +1,5 @@
 import BryggCountdown from "@/components/bryggcountdown";
+import LoginModal from "@/components/loginmodal";
 import Image from "next/image";
 
 export default function Home() {

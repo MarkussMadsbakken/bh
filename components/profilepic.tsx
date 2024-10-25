@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 export default function ProfilePic({ onclick, userid, className }: { onclick?: () => void, userid: string, className?: string }) {
 
     const session = useSession();
-    let imgLink = null;
     const [imageLink, setImageLink] = useState("");
     const [loading, setLoading] = useState(true);
 
