@@ -17,12 +17,12 @@ model User {
   id            Int            @id @default(autoincrement())
   username      String // We need to store usernames and images because they
   image         String // otherwise cannot be fetched without a tihlde user
-  Role          Role           @default(MEMBER)
-  Post          Post[]
-  Quotes        Quote[]
-  QuotesCreated Quote[]        @relation("QuoteCreated")
-  Attendance    Attendance[]
-  EventComment  EventComment[]
+  role          Role           @default(MEMBER)
+  post          Post[]
+  quotes        Quote[]
+  quotesCreated Quote[]        @relation("QuoteCreated")
+  attendance    Attendance[]
+  eventComment  EventComment[]
 }
 
 enum Role {

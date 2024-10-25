@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useLoginModal } from "@/util/loginprovider";
+import { permission } from "@/types/permissions";
 
 export default function Topbar() {
     const session = useSession();
@@ -29,6 +30,8 @@ export default function Topbar() {
                         <div className="flex flex-row w-1/2 space-x-4 self-center" >
                             <TopbarLink href="/">Hjem</TopbarLink>
                             <TopbarLink href="/brygg">Brygg</TopbarLink>
+                            {session.data?.user.role.permissions.includes(permission.viewquotes) && <TopbarLink href="/quotes"> Sitater </TopbarLink>}
+                            {session.data?.user.role.permissions.includes(permission.viewfines) && <TopbarLink href="/fines"> Bøter </TopbarLink>}
                         </div>
                         <div ref={accountOptionRef} className={`ml-auto  flex flex-col justify-center ${accountOptionOpen ? "absolute bg-white rounded-lg    shadow-lg z-50 p-4 h-fit transition-all duration-300 right-0 " : "relative h-20 align-middle"}`}>
                             <motion.div layout className="self-center">
@@ -44,7 +47,14 @@ export default function Topbar() {
 
                             {accountOptionOpen &&
                                 <div className="flex flex-col pt-6 text-center justify-center align-middle w-44">
-                                    {session.data?.user.name}
+                                    <div className="grid flex-row space-x-2 w-full align-bottom">
+                                        <div>
+                                            {session.data?.user.name}
+                                        </div>
+                                        <div className="font-extralight text-xs h-fit">
+                                            {session.data?.user.role.shortname}
+                                        </div>
+                                    </div>
                                     <Separator />
                                     <Button variant="primary" className="mt-2" onClick={() => {
                                         setAccountOptionOpen(false);

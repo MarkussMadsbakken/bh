@@ -1,6 +1,46 @@
-import { Role, roles } from "@/types/permissions";
+import { roles } from "@/types/permissions";
+import { PrismaClient } from "@prisma/client";
 import NextAuth, { User } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+
+const prisma = new PrismaClient();
+
+async function createUser(username: string, token: string) {
+    let role: "ADMIN" | "MEMBER" | "GUEST" | "LEADER" = "GUEST";
+
+    // Get user memberships
+    const tihldeMemberships = await fetch(`https://api.tihlde.org/users/${username}/memberships/`, {
+        headers: {
+            "X-Csrf-Token": token,
+        }
+    }).then(res => res.json());
+
+    // Get user memberships
+    const tihldeuser = await fetch(`https://api.tihlde.org/users/${username}/`, {
+        headers: {
+            "X-Csrf-Token": token,
+        }
+    }).then(res => res.json());
+
+    // Check if member of bh
+    tihldeMemberships.results.forEach(element => {
+        if (element.group.slug === "tihldebh") {
+            if (element.memberships_type === "LEADER") {
+                role = "LEADER"
+            } else {
+                role = "MEMBER"
+            }
+        }
+    });
+
+    const a = await prisma.user.create({
+        data: {
+            username: username,
+            role: role,
+            image: tihldeuser.image,
+        }
+    })
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [Credentials({
@@ -9,6 +49,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             password: {}
         },
         authorize: async (credentials) => {
+
+            if (!credentials.username || !credentials.password) {
+                return null;
+            }
+
             const res = await fetch("https://api.tihlde.org/auth/login/", {
                 method: "POST",
                 headers: {
@@ -30,28 +75,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 return null;
             }
 
-            // Get user memberships
-            const tihldeMemberships = await fetch(`https://api.tihlde.org/users/${credentials.username}/memberships/`, {
-                headers: {
-                    "X-Csrf-Token": data.token,
-                }
-            }).then(res => res.json());
+            let role = roles.GUEST;
 
-            let role = roles.guest;
-
-
-            // Check if member of bh
-            tihldeMemberships.results.forEach(element => {
-                if (element.group.slug === "tihldebh") {
-                    if (element.memberships_type === "LEADER") {
-                        role = roles.tihldeLeader
-                    } else {
-                        role = roles.member
-                    }
+            // Check if user preexists
+            const user = await prisma.user.findFirst({
+                where: {
+                    username: credentials.username
                 }
             });
 
-            // TODO: Check if admin (når embret gir med jævla serveren)
+            if (!user) {
+                // create a new user
+                await createUser(credentials.username as string, data.token);
+            }
+
+            role = user?.role ? roles[user.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER"] : roles.GUEST;
 
             return {
                 name: credentials.username,

@@ -1,4 +1,3 @@
-
 import { auth } from "@/util/auth";
 import { NextResponse } from "next/server";
 

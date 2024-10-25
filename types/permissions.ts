@@ -1,39 +1,59 @@
 
 export enum permission {
-    editnextbrygg = "editnextbrygg",
-    bot = "bot",
-    editallbot = "editallbot",
+    editevents = "editnextbrygg",
+    createfine = "createfine",
+    viewfines = "viewfines",
+    viewquotes = "viewquotes",
+    createquote = "createquote",
+    editallquotes = "editallquotes",
+
 }
 
 export type Role = {
-    permissions: permission[]
+    permissions: permission[];
+    shortname: string;
 }
 
 export const roles = {
-    tihldeLeader:
+    LEADER:
         {
             permissions: [
-                permission.editnextbrygg,
-                permission.bot,
-                permission.editallbot
-            ]
+                permission.editevents,
+                permission.createfine,
+                permission.viewfines,
+                permission.viewquotes,
+                permission.createquote,
+                permission.editallquotes
+            ],
+            shortname: "Leder"
         } as Role,
-    admin:
+    ADMIN:
         {
             permissions: [
-                permission.editnextbrygg,
-                permission.bot,
-                permission.editallbot
-            ]
+                permission.editevents,
+                permission.createfine,
+                permission.viewfines,
+                permission.viewquotes,
+                permission.createquote,
+                permission.editallquotes,
+            ],
+            shortname: "Admin"
         } as Role,
-    member:
+    MEMBER:
         {
             permissions: [
-                permission.bot
-            ]
+                permission.createfine,
+                permission.viewfines,
+                permission.viewquotes,
+                permission.createquote,
+            ],
+            shortname: "Medlem"
         } as Role,
-    guest:
+    GUEST:
         {
-            permissions: []
+            permissions: [
+                permission.viewquotes,
+            ],
+            shortname: "Gjest"
         } as Role
 }
