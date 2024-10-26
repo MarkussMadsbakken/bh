@@ -14,7 +14,7 @@ export default function ProfilePic({ onclick, userid, className }: { onclick?: (
         if (session.data) {
             fetch(`/api/users/${userid}/pfp`)
                 .then(res => res.json()).then(data => {
-                    setImageLink(data);
+                    setImageLink(data.image);
                     setLoading(false);
                 })
         } else {

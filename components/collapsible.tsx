@@ -16,10 +16,10 @@ export default function Collapsible({
     return (
         <div className="rounded-lg mb-4 bg-neutral-100 h-fit overflow-hidden">
             <div
-                className="flex items-center justify-between p-4 cursor-pointer h-full"
+                className="flex items-center justify-between p-4 cursor-pointer h-full hover:bg-neutral-200 transition-colors"
                 onClick={() => setOpen(!open)}
             >
-                <h2 className="text-lg font-semibold">{title}</h2>
+                {title}
                 <svg
                     className={`w-6 h-6 transition-transform transform ${open ? "rotate-180" : ""
                         }`}

@@ -2,6 +2,7 @@ import { roles } from "@/types/permissions";
 import { PrismaClient } from "@prisma/client";
 import NextAuth, { User } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import { TihldeUser } from "./tihldeTypes";
 
 const prisma = new PrismaClient();
 
@@ -15,15 +16,15 @@ async function createUser(username: string, token: string) {
         }
     }).then(res => res.json());
 
-    // Get user memberships
-    const tihldeuser = await fetch(`https://api.tihlde.org/users/${username}/`, {
+    // Get user
+    const tihldeuser: TihldeUser = await fetch(`https://api.tihlde.org/users/${username}/`, {
         headers: {
             "X-Csrf-Token": token,
         }
     }).then(res => res.json());
 
     // Check if member of bh
-    tihldeMemberships.results.forEach(element => {
+    tihldeMemberships.results.forEach((element: any) => {
         if (element.group.slug === "tihldebh") {
             if (element.memberships_type === "LEADER") {
                 role = "LEADER"
@@ -38,6 +39,7 @@ async function createUser(username: string, token: string) {
             username: username,
             role: role,
             image: tihldeuser.image,
+            firstname: tihldeuser.first_name,
         }
     })
 }
@@ -94,7 +96,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return {
                 name: credentials.username,
                 token: data.token,
-                role: role
+                role: role,
+                id: user?.id
             } as User
         }
     })],
@@ -105,10 +108,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (user) {
                 token.token = user.token;
                 token.role = user.role;
+                token.id = user.id;
             }
 
             // maybe stupid but lets double check role with db
-            const name = token.name || user.name
+            const name = token.name ?? user.name
 
             if (name) {
                 const u = await prisma.user.findFirst({
@@ -127,7 +131,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
 
         session({ session, token }) {
-
+            session.user.id = token.id;
             session.user.token = token.token;
             session.user.role = token.role;
             return session;

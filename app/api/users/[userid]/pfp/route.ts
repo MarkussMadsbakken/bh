@@ -1,30 +1,24 @@
-import { auth } from "@/util/auth";
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const GET = auth(async function GET(req, ctx) {
-    if (!req.auth) {
-        return NextResponse.json({ message: "Not authenticated" }, { status: 401 })
-    }
+const prisma = new PrismaClient();
 
-    const params = await ctx.params;
+export async function GET(req: any, ctx: { params: any; }) {
+    const params = await ctx.params
+    console.log(params)
 
-    // Get user memberships
-    const user = await fetch(`https://api.tihlde.org/users/${params?.userid}/`,
-        {
-            headers: {
-                "method": "GET",
-                "X-Csrf-Token": req.auth.user.token
-            }
+    const image = await prisma.user.findUnique({
+        where: {
+            id: params.userid
+        },
+        select: {
+            image: true
         }
-    )
-        .then(res => res.json());
+    });
 
-    return NextResponse.json(user.image);
-})
-
-
-export async function POST() {
-    return NextResponse.json({ error: "Invalid method. Changing profile picture can only be done from https://tihlde.org" }, { status: 405 });
+    return NextResponse.json(image)
 }
 
+export async function POST() {
+    return NextResponse.json({ error: "Invalid method. Members can only be changed via tihlde.org" }, { status: 405 });
+}

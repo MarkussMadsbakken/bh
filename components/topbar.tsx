@@ -35,7 +35,7 @@ export default function Topbar() {
                         </div>
                         <div ref={accountOptionRef} className={`ml-auto  flex flex-col justify-center ${accountOptionOpen ? "absolute bg-white rounded-lg    shadow-lg z-50 p-4 h-fit transition-all duration-300 right-0 " : "relative h-20 align-middle"}`}>
                             <motion.div layout className="self-center">
-                                <ProfilePic userid={session.data?.user.name || ""} onclick={() => {
+                                <ProfilePic userid={session.data?.user.id ?? ""} onclick={() => {
                                     if (!session.data?.user) {
                                         loginModal.open();
                                     } else {

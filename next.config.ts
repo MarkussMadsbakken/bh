@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "tihldestorage.blob.core.windows.net",
+      },
+      {
+        protocol: "https",
+        hostname: "leptonstoragepro.blob.core.windows.net",
       }
     ]
   },

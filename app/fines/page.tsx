@@ -28,12 +28,11 @@ export default async function FinesPage() {
         }
     )
         .then(res => res.json());
+
     return (
         <div className="w-screen flex flex-col">
             <div className="w-5/6 self-center">
                 {fines.results.map((fine: any) => {
-                    console.log(fine.user);
-
                     return (
                         <div className="m-4" key={fine.id}>
                             <Fine {...fine} user={fine.user} />

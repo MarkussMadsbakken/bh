@@ -1,14 +1,19 @@
 "use client";
 
-import { useRef, forwardRef } from "react";
+import { useRef } from "react";
+import { easeIn, easeInOut, easeOut, motion, stagger, useAnimate } from "framer-motion";
+import { useEffect, useState } from "react";
 
-export const Button = ({ variant, children, className, onClick, ...rest }: { variant?: string, children?: React.ReactNode, className?: string, onClick?: () => void }) => {
+type reactChild = React.JSX.Element;
+type multipleReactChildren = React.JSX.Element[];
+
+export const Button = ({ variant, children, className, onClick, ...rest }: { variant?: String, children?: React.ReactNode, className?: String, onClick?: () => void }) => {
     return (
         <button
             className={
                 variant == "primary"
-                    ? ` px-7 py-2 max-w-full h-full rounded-lg border hover:bg-neutral-100 active:bg-neutral-200 ${className}`
-                    : ` px-7 py-2 max-w-full h-full rounded-lg bg-white border-2 hover:bg-blue-700 text-blue-500 border-blue-500 ${className}`
+                    ? `px-7 py-2 max-w-full max-h-full rounded-lg bg-white border-2 hover:bg-neutral-200 text-black ${className}`
+                    : `px-7 py-2 max-w-full max-h-full rounded-lg bg-neutral-700 hover:bg-blue-500 text-white ${className}`
             }
             {...rest}
             onClick={onClick}
@@ -18,31 +23,16 @@ export const Button = ({ variant, children, className, onClick, ...rest }: { var
     );
 }
 
-interface TextInputProps {
-    placeholder?: string;
-    value?: string;
-    onSubmit?: (s: string) => void;
-    onChange?: (s: string) => void;
-    className?: string;
-    textCentered?: boolean;
-    onEnterClear?: boolean;
-    onEnterBlur?: boolean;
-    type?: string;
-    acceptedValues?: string[];
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: any) {
-    let element = useRef<HTMLInputElement>(null);
-    if (ref) element = ref
+export const TextInput = ({ placeholder, value, onSubmit, onChange, className, textCentered, onEnterClear, type }: { placeholder?: string, value?: string, onSubmit?: (s: string) => void, onChange?: (s: string) => void, className?: string, textCentered?: boolean, onEnterClear?: boolean, type?: string }) => {
+    const element = useRef<HTMLInputElement>(null);
 
     //placeholder
     let pl = "Placeholder...";
-    if (props.placeholder) {
-        pl = props.placeholder;
+    if (placeholder) {
+        pl = placeholder;
     }
 
-    const alwaysAcceptValues = [
+    let alwaysAcceptValues = [
         "Backspace",
         "Delete",
         "ArrowLeft",
@@ -66,35 +56,172 @@ export const TextInput = forwardRef(function TextInput(props: TextInputProps, re
 
     //function to handle submit
     function handleSubmit(text: string) {
-        if (props.onEnterBlur) element?.current?.blur();
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        props.onEnterClear ? element?.current ? (element.current.value = "") : null : null;
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        props.onSubmit ? props.onSubmit(text) : {};
+        element?.current?.blur();
+        onEnterClear ? element?.current ? (element.current.value = "") : null : null;
+        onSubmit ? onSubmit(text) : {};
     }
 
-    const heightset = props.className?.includes("h-");
-
     return (
-        <div className={`min-w-52 ${heightset ? "" : "h-full"} flex flex-row align-middle bg-neutral-100 border border-neutral-200 rounded-lg p-1 ${props.className}`}>
+        <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-1 ${className}`}>
             <input
                 ref={element}
-                type={props.type ? props.type : "text"}
-                className={`w-full h-full bg-transparent outline-none px-3 ${props.textCentered || props.textCentered == undefined ? " text-center" : ""}}`}
+                type={type || "text"}
+                className={`w-full h-full bg-transparent outline-none px-3 ${textCentered ? " text-center" : ""}}`}
                 placeholder={pl}
-                defaultValue={props.value}
+                defaultValue={value}
                 onChange={(e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                    props.onChange ? props.onChange(e.target.value) : null;
+                    onChange ? onChange(e.target.value) : null;
                 }}
                 onKeyDown={(e) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     e.key === "Enter"
                         ? handleSubmit(element.current ? element.current.value : "")
-                        : handleKeyDown(e, props.acceptedValues);
+                        : handleKeyDown(e);
                 }}
             />
         </div>
     );
-});
+};
+
+
+/**
+ * A dropdown component that displays a list of options and allows the user to select one.
+ * @param {Object} props - The props object that contains the properties passed to the component.
+ * @param {Array} children - The array of child components that represent the options in the dropdown.
+ * @returns {JSX.Element} - The JSX element that represents the dropdown component.
+ */
+export const Dropdown = ({ children, open, className }: { children: multipleReactChildren, open: number, className?: string }) => {
+    const staggerMenuItems = stagger(0.02, { startDelay: 0.1 }); //generates a stagger function for the menu items
+    const [isOpen, setIsOpen] = useState(false); //if the dropdown is open
+    const [selectedItem, setSelectedItem] = useState(
+        open ? open : open == 0 ? open : -1
+    ); //truly the worst code ive ever written
+    const [scope, animate] = useAnimate(); //animation scope
+
+    Array.isArray(children) ? children : children = [children];
+
+    if (selectedItem >= children.length) setSelectedItem(-1);
+
+    useEffect(() => {
+        //checks if a click is outside the dropdown box
+        function checkClick(e: MouseEvent) {
+            if (!scope.current.contains(e.target)) {
+                setIsOpen(false);
+                window.removeEventListener("click", checkClick);
+            }
+        }
+
+        //adds an event listener to the window to check if a click is outside the dropdown box
+        if (isOpen) {
+            window.addEventListener("click", checkClick);
+        }
+
+        //animaes the dropdown box
+        animate(
+            "#dropdown",
+            {
+                clipPath: isOpen
+                    ? "inset(0% 0% 0% 0% round 6px)"
+                    : "inset(10% 50% 90% 50% round 6px)",
+            },
+            {
+                type: "spring",
+                bounce: 0,
+                duration: 0.2,
+            }
+        );
+
+        //animates each dropdown item
+        animate(
+            ".dropdownItem",
+            isOpen
+                ? { opacity: 1, scale: 1, filter: "blur(0px)", x: 0 }
+                : { opacity: 0, scale: 0, filter: "blur(2px)", x: 50 },
+            { duration: 0.15, ease: "easeOut", delay: isOpen ? staggerMenuItems : 0 }
+        );
+
+        //animates the arrow icon
+        animate(".arrow", isOpen ? { rotate: 180 } : { rotate: 0 }, {
+            duration: 0.2,
+            ease: "easeOut",
+        });
+
+        //removes the event listener when the component is unmounted
+        return () => {
+            window.removeEventListener("click", checkClick);
+        };
+    }, [isOpen]);
+
+    if (selectedItem >= children.length) setSelectedItem(-1)
+
+    return (
+        <div ref={scope} className={'w-52 h-12 ' + className}>
+            <motion.button
+                className='w-full h-full flex flex-row justify-between rounded-md border border-neutral-300 bg-white'
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <div className='px-3 h-full flex justify-center items-center'>
+                    {selectedItem === -1 ? "Select" : children[selectedItem] ? children[selectedItem].props.children : "Select"}
+                </div>
+
+                <div
+                    className='arrow self-center p-2'
+                    style={{ transformOrigin: "50% 55%" }}
+                >
+                    <svg
+                        width='25'
+                        height='20'
+                        viewBox='-10 -12 20 20'
+                        transform='scale(0.6)'
+                    >
+                        <path d='M -10 -3 C -12 -5 -10 -7 -8 -5 L 0 2 L 0 2 L 8 -5 C 10 -7 12 -5 10 -3 L 1 5 C 0 6 0 6 -1 5' />
+                    </svg>
+                </div>
+            </motion.button>
+
+            <div
+                id='dropdown'
+                className='first-letter:flex flex-col justify-center mt-2 overflow-hidden rounded-md border border-neutral-300 bg-white'
+                style={{
+                    pointerEvents: isOpen ? "auto" : "none",
+                    clipPath: "inset(10% 50% 90% 50% round 10px)",
+                }}
+            >
+                {children.map ? children.map((child, index) => (
+                    <motion.button
+                        key={index}
+                        className='dropdownItem flex py-3 px-3 w-full'
+                        onClick={() => {
+                            child.props.onSelect?.();
+                            setIsOpen(false);
+                            setSelectedItem(index);
+                        }}
+                        whileHover={{ scale: 1.02, x: 5, fontWeight: 450 }}
+                    >
+                        {child}
+                    </motion.button>
+                )) : <motion.button
+                    className='dropdownItem flex py-3 px-3 w-full'
+                    onClick={() => {
+                        children.at(0)?.props.onSelect?.();
+                        setIsOpen(false);
+                        setSelectedItem(-1);
+                    }}
+                    whileHover={{ scale: 1.02, x: 5, fontWeight: 450 }}
+                >
+                    {children}
+                </motion.button>}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * A component that represents an item in the dropdown.
+ * @param {Object} props - The props object that contains the properties passed to the component.
+ * @param {function} [onSelect] - The function to be called when the user selects the item.
+ * @param {Array} children - The array of child components that represent the options in the dropdown.
+ * @returns {JSX.Element} - The JSX element that represents the dropdown item component.
+ */
+export const DropdownItem = ({ children, onSelect }: { onSelect?: () => void, children: multipleReactChildren | reactChild | string }) => {
+    return <div className='dropdownItem flex'>{children}</div>;
+};

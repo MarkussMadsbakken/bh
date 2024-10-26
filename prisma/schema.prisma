@@ -14,15 +14,17 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  username      String // We need to store usernames and images because they
-  image         String // otherwise cannot be fetched without a tihlde user
-  role          Role           @default(MEMBER)
+  id            String          @id @default(uuid())
+  username      String          @unique // We need to store usernames and images because they
+  image         String //                  otherwise cannot be fetched without a tihlde user
+  firstname     String
+  role          Role            @default(MEMBER)
   post          Post[]
   quotes        Quote[]
-  quotesCreated Quote[]        @relation("QuoteCreated")
+  quotesCreated Quote[]         @relation("QuoteCreated")
   attendance    Attendance[]
   eventComment  EventComment[]
+  QuoteReaction QuoteReaction[]
 }
 
 enum Role {
@@ -38,7 +40,7 @@ model Post {
   title     String
   content   String
   author    User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -55,14 +57,32 @@ model InventoryItem {
 }
 
 model Quote {
-  id          Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   quote       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  author      User     @relation(fields: [userId], references: [id])
-  createdBy   User     @relation(fields: [createdById], references: [id], name: "QuoteCreated")
-  userId      Int
-  createdById Int
+  context     String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  author      User            @relation(fields: [authorId], references: [id])
+  createdBy   User            @relation(fields: [createdById], references: [id], name: "QuoteCreated")
+  authorId    String
+  createdById String
+  Fine        Fine?
+  reactions   QuoteReaction[]
+}
+
+model QuoteReaction {
+  id       Int    @id @default(autoincrement())
+  reaction String
+  user     User   @relation(fields: [userId], references: [id])
+  Quote    Quote? @relation(fields: [quoteId], references: [id])
+  quoteId  Int?
+  userId   String
+}
+
+model Fine {
+  id      Int    @id @default(autoincrement())
+  Quote   Quote? @relation(fields: [quoteId], references: [id])
+  quoteId Int?   @unique
 }
 
 // Brygginger
@@ -82,7 +102,7 @@ model Attendance {
   user      User     @relation(fields: [userId], references: [id])
   event     Event    @relation(fields: [eventId], references: [id])
   present   Boolean
-  userId    Int
+  userId    String
   eventId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -92,7 +112,7 @@ model EventComment {
   id        Int      @id @default(autoincrement())
   content   String
   author    User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   event     Event    @relation(fields: [eventId], references: [id])
   eventId   Int
   createdAt DateTime @default(now())
