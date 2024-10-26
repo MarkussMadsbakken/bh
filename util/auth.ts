@@ -101,14 +101,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     callbacks: {
         async jwt({ token, user }) {
+
             if (user) {
                 token.token = user.token;
                 token.role = user.role;
             }
+
+            // maybe stupid but lets double check role with db
+            const name = token.name || user.name
+
+            if (name) {
+                const u = await prisma.user.findFirst({
+                    where:
+                    {
+                        username: name
+                    }
+                })
+
+                if (u) {
+                    token.role = u?.role ? roles[u.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER"] : roles.GUEST;
+                }
+            }
+
             return token;
         },
 
         session({ session, token }) {
+
             session.user.token = token.token;
             session.user.role = token.role;
             return session;

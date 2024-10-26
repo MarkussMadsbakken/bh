@@ -22,7 +22,6 @@ export default function ProfilePic({ onclick, userid, className }: { onclick?: (
                 setLoading(false);
             }
         }
-        console.log(session)
     }, [session])
 
     return (
