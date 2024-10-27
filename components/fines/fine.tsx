@@ -54,8 +54,8 @@ export default async function Fine(props: FineProps) {
         }>
             <div className="flex flex-col bg-gray-100 p-4">
                 <div className="flex-row justify-between">
-                    <div className="underline text-sm">
-                        {props.description.split(" -")[0]}
+                    <div className="whitespace-pre-wrap">
+                        {props.reason}
                     </div>
                 </div>
             </div>

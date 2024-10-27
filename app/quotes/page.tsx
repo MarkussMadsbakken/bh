@@ -19,7 +19,6 @@ export default function QuotesPage() {
     const fetchQuotes = async () => {
         const res = await fetch("/api/quotes");
         const data = await res.json();
-        console.log(data);
         setQuotes(data);
         setLoading(false);
     }
@@ -43,7 +42,7 @@ export default function QuotesPage() {
 
     return (
         <>
-            <div className="w-full flex-row items-center">
+            <div className="w-full flex-coc flex justify-center">
                 {!loading && <QuoteComponent {...quotes[0]} />}
             </div>
             {session.data.user.role.permissions.includes(permission.createquote) && <NewQuoteButton />}

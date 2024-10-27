@@ -1,9 +1,8 @@
+
 import { permission } from "@/types/permissions";
 import { auth } from "@/util/auth";
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-// TODO: this api route is currently not used.... remove?
 export const GET = auth(async function GET(req, ctx) {
     if (!req.auth) {
         return NextResponse.json({ message: "Not authenticated" }, { status: 401 })
@@ -14,8 +13,7 @@ export const GET = auth(async function GET(req, ctx) {
     }
 
 
-    // Get all fines
-    const fines = await fetch(`https://api.tihlde.org/groups/tihldebh/fines/`,
+    const laws = await fetch(`https://api.tihlde.org/groups/tihldebh/laws/`,
         {
             headers: {
                 "method": "GET",
@@ -25,7 +23,7 @@ export const GET = auth(async function GET(req, ctx) {
     )
         .then(res => res.json());
 
-    return NextResponse.json(fines)
+    return NextResponse.json(laws)
 })
 
 

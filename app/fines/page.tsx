@@ -1,4 +1,5 @@
 import Fine, { FineProps } from "@/components/fines/fine";
+import NewFineButton from "@/components/fines/newFineButton";
 import { permission } from "@/types/permissions";
 import { auth } from "@/util/auth";
 
@@ -30,16 +31,19 @@ export default async function FinesPage() {
         .then(res => res.json());
 
     return (
-        <div className="w-screen flex flex-col">
-            <div className="w-5/6 self-center">
-                {fines.results.map((fine: any) => {
-                    return (
-                        <div className="m-4" key={fine.id}>
-                            <Fine {...fine} user={fine.user} />
-                        </div>
-                    )
-                })}
-            </div>
-        </div >
+        <>
+            <div className="w-screen flex flex-col">
+                <div className="w-5/6 self-center">
+                    {fines.results.map((fine: any) => {
+                        return (
+                            <div className="m-4" key={fine.id}>
+                                <Fine {...fine} user={fine.user} />
+                            </div>
+                        )
+                    })}
+                </div>
+            </div >
+            {session.user.role.permissions.includes(permission.createquote) && <NewFineButton />}
+        </>
     )
 }

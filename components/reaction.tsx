@@ -1,18 +1,18 @@
 "use client"
 import { reaction, reactionDescription, reactionMap } from "@/types/quotes";
+import { User } from "@prisma/client";
 import { useAnimate } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 interface ReactionProps {
-    users: [
-        { name: string, id: string }
-    ],
+    users: User[],
     reaction: reaction,
     addReaction: () => void
 }
 
-
 export default function Reaction(props: Readonly<ReactionProps>) {
+    const session = useSession();
 
     const [hover, setHover] = useState(false);
     const [fadeIn, animateFadeIn] = useAnimate();
@@ -56,7 +56,7 @@ export default function Reaction(props: Readonly<ReactionProps>) {
 
     }
 
-    const usersString = props.users.map((user) => user.name).map((name, index) => {
+    const usersString = props.users.map((user) => user.firstname).map((name, index) => {
         if (index === 0) {
             return name
         }
@@ -70,7 +70,7 @@ export default function Reaction(props: Readonly<ReactionProps>) {
 
     return (
         <>
-            <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className="grid h-full -translate-y-[1px] grid-cols-2 justify-center content-center cursor-pointer select-none" onClick={props.addReaction}>
+            <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className={`grid h-full -translate-y-[1px] grid-cols-2 justify-center content-center cursor-pointer select-none ${props.users.find(elm => elm.id === session.data?.user.id) && "text-blue-600"}`} onClick={props.addReaction}>
                 <div className="h-fit text-center">
                     {props.users.length}
                 </div>

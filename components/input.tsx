@@ -82,6 +82,43 @@ export const TextInput = ({ placeholder, value, onSubmit, onChange, className, t
     );
 };
 
+export function TextArea({ placeholder, value, onSubmit, onChange, className, textCentered, onEnterClear }: { placeholder?: string, value?: string, onSubmit?: (s: string) => void, onChange?: (s: string) => void, className?: string, textCentered?: boolean, onEnterClear?: boolean }) {
+    const element = useRef<HTMLTextAreaElement>(null);
+
+    //placeholder
+    let pl = "Placeholder...";
+    if (placeholder) {
+        pl = placeholder;
+    }
+
+    //function to handle key down
+    function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            element?.current?.blur();
+            onEnterClear ? element?.current ? (element.current.value = "") : null : null;
+            onSubmit ? onSubmit(element.current ? element.current.value : "") : {};
+        }
+    }
+
+    return (
+        <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-1 ${className}`}>
+            <textarea
+                ref={element}
+                className={`w-full h-full bg-transparent outline-none px-3 ${textCentered ? " text-center" : ""}}`}
+                placeholder={pl}
+                defaultValue={value}
+                onChange={(e) => {
+                    onChange ? onChange(e.target.value) : null;
+                }}
+                onKeyDown={(e) => {
+                    handleKeyDown(e);
+                }}
+            />
+        </div>
+    );
+}
+
 
 /**
  * A dropdown component that displays a list of options and allows the user to select one.
@@ -89,7 +126,7 @@ export const TextInput = ({ placeholder, value, onSubmit, onChange, className, t
  * @param {Array} children - The array of child components that represent the options in the dropdown.
  * @returns {JSX.Element} - The JSX element that represents the dropdown component.
  */
-export const Dropdown = ({ children, open, className }: { children: multipleReactChildren, open: number, className?: string }) => {
+export const Dropdown = ({ children, open, className, placeholder }: { children: multipleReactChildren, open: number, className?: string, placeholder?: string }) => {
     const staggerMenuItems = stagger(0.02, { startDelay: 0.1 }); //generates a stagger function for the menu items
     const [isOpen, setIsOpen] = useState(false); //if the dropdown is open
     const [selectedItem, setSelectedItem] = useState(
@@ -160,7 +197,9 @@ export const Dropdown = ({ children, open, className }: { children: multipleReac
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className='px-3 h-full flex justify-center items-center'>
-                    {selectedItem === -1 ? "Select" : children[selectedItem] ? children[selectedItem].props.children : "Select"}
+                    {selectedItem === -1 ?
+                        placeholder ? placeholder : "Select"
+                        : children[selectedItem] ? children[selectedItem].props.children : "Select"}
                 </div>
 
                 <div
@@ -180,7 +219,7 @@ export const Dropdown = ({ children, open, className }: { children: multipleReac
 
             <div
                 id='dropdown'
-                className='first-letter:flex flex-col justify-center mt-2 overflow-hidden rounded-md border border-neutral-300 bg-white'
+                className={`first-letter:flex flex-col justify-center mt-2 overflow-hidden rounded-md border border-neutral-300 bg-white ${isOpen ? "h-fit" : "h-0"}`}
                 style={{
                     pointerEvents: isOpen ? "auto" : "none",
                     clipPath: "inset(10% 50% 90% 50% round 10px)",

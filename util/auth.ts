@@ -97,7 +97,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 name: credentials.username,
                 token: data.token,
                 role: role,
-                id: user?.id
+                id: user?.id,
+                firstname: user?.firstname
             } as User
         }
     })],
@@ -109,6 +110,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.token = user.token;
                 token.role = user.role;
                 token.id = user.id;
+                token.firstname = user.firstname;
             }
 
             // maybe stupid but lets double check role with db
@@ -134,6 +136,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             session.user.id = token.id;
             session.user.token = token.token;
             session.user.role = token.role;
+            session.user.firstname = token.firstname;
             return session;
         }
     },

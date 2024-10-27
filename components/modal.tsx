@@ -33,9 +33,9 @@ export default function Modal(props: ModalProps) {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} role="dialog" className="relative z-[999]" aria-labelledby="modal-title" aria-modal="true">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div className="fixed inset-0 z-10 w-screen">
                 <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                    <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg max-h-[100vh] overflow-y-auto h-fit">
                         {(tabs && tabs.length != 0) &&
                             <>
                                 <div className={`grid grid-cols-${tabs.length} shadow-inner`}>
@@ -78,6 +78,13 @@ export default function Modal(props: ModalProps) {
 
                         {(!tabs || tabs.length == 0) &&
                             <div className="p-4">
+                                {props.onClose !== null &&
+                                    <button onClick={props.onClose} className="absolute z-30 right-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                }
                                 {props.children}
                             </div>
                         }

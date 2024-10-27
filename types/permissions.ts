@@ -6,6 +6,7 @@ export enum permission {
     viewquotes = "viewquotes",
     createquote = "createquote",
     editallquotes = "editallquotes",
+    addreaction = "addreaction",
 
 }
 
@@ -23,7 +24,8 @@ export const roles = {
                 permission.viewfines,
                 permission.viewquotes,
                 permission.createquote,
-                permission.editallquotes
+                permission.editallquotes,
+                permission.addreaction
             ],
             shortname: "Leder"
         } as Role,
@@ -36,6 +38,7 @@ export const roles = {
                 permission.viewquotes,
                 permission.createquote,
                 permission.editallquotes,
+                permission.addreaction,
             ],
             shortname: "Admin"
         } as Role,
@@ -46,6 +49,7 @@ export const roles = {
                 permission.viewfines,
                 permission.viewquotes,
                 permission.createquote,
+                permission.addreaction
             ],
             shortname: "Medlem"
         } as Role,

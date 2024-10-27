@@ -11,5 +11,6 @@ declare module "next-auth" {
         name: string
         token: string
         role: Role
+        firstname: string
     }
 }

@@ -3,7 +3,7 @@ Etter du har klonet prosjektet fra github, må du installere alle pakkene vi bru
 
 ### Videre oppsett
 1. For å sette opp auth, trenger vi en en auth secret. Den letteste måten å lage dette på er med ```$ npx auth secret```.
-2. Legg ved database UTR-en i en .env fil. Her legger du ved databasen med DATABASE_URL="databaseurl". Du kan enten bruke din egen lokale database, eller så kan du få tilgang til tihlde-bh sin dev database (send meg (markus) en melding).
+2. Legg ved database URL-en i en .env fil. Her legger du ved databasen med DATABASE_URL="databaseurl". Du kan enten bruke din egen lokale database, eller så kan du få tilgang til tihlde-bh sin dev database (send meg (markus) en melding).
 3. Til slutt trenger du å generere databasetypene. Dette gjør du ved å skrive ```$ npx prisma generate```
 
 ### Kjøring
