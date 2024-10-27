@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef } from "react";
 import { easeIn, easeInOut, easeOut, motion, stagger, useAnimate } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 type reactChild = React.JSX.Element;
 type multipleReactChildren = React.JSX.Element[];
@@ -23,7 +22,7 @@ export const Button = ({ variant, children, className, onClick, ...rest }: { var
     );
 }
 
-export const TextInput = ({ placeholder, value, onSubmit, onChange, className, textCentered, onEnterClear, type }: { placeholder?: string, value?: string, onSubmit?: (s: string) => void, onChange?: (s: string) => void, className?: string, textCentered?: boolean, onEnterClear?: boolean, type?: string }) => {
+export const TextInput = ({ placeholder, value, onSubmit, onChange, className, textCentered, onEnterClear, type, acceptedValues }: { placeholder?: string, value?: string, onSubmit?: (s: string) => void, onChange?: (s: string) => void, className?: string, textCentered?: boolean, onEnterClear?: boolean, type?: string, acceptedValues?: string[] }) => {
     const element = useRef<HTMLInputElement>(null);
 
     //placeholder
@@ -43,7 +42,7 @@ export const TextInput = ({ placeholder, value, onSubmit, onChange, className, t
     ];
 
     //function to handle key down
-    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>, acceptedValues?: string[]) {
+    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         if (acceptedValues) {
             if (!acceptedValues.includes(e.key)) {
                 if (!alwaysAcceptValues.includes(e.key)) {
@@ -70,7 +69,7 @@ export const TextInput = ({ placeholder, value, onSubmit, onChange, className, t
                 placeholder={pl}
                 defaultValue={value}
                 onChange={(e) => {
-                    onChange ? onChange(e.target.value) : null;
+                    onChange?.(e.target.value);
                 }}
                 onKeyDown={(e) => {
                     e.key === "Enter"
@@ -85,12 +84,6 @@ export const TextInput = ({ placeholder, value, onSubmit, onChange, className, t
 export function TextArea({ placeholder, value, onSubmit, onChange, className, textCentered, onEnterClear }: { placeholder?: string, value?: string, onSubmit?: (s: string) => void, onChange?: (s: string) => void, className?: string, textCentered?: boolean, onEnterClear?: boolean }) {
     const element = useRef<HTMLTextAreaElement>(null);
 
-    //placeholder
-    let pl = "Placeholder...";
-    if (placeholder) {
-        pl = placeholder;
-    }
-
     //function to handle key down
     function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
         if (e.key === "Enter") {
@@ -102,11 +95,11 @@ export function TextArea({ placeholder, value, onSubmit, onChange, className, te
     }
 
     return (
-        <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-1 ${className}`}>
+        <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-2 h-fit ${className}`}>
             <textarea
                 ref={element}
                 className={`w-full h-full bg-transparent outline-none px-3 ${textCentered ? " text-center" : ""}}`}
-                placeholder={pl}
+                placeholder={placeholder}
                 defaultValue={value}
                 onChange={(e) => {
                     onChange ? onChange(e.target.value) : null;
@@ -126,11 +119,11 @@ export function TextArea({ placeholder, value, onSubmit, onChange, className, te
  * @param {Array} children - The array of child components that represent the options in the dropdown.
  * @returns {JSX.Element} - The JSX element that represents the dropdown component.
  */
-export const Dropdown = ({ children, open, className, placeholder }: { children: multipleReactChildren, open: number, className?: string, placeholder?: string }) => {
+export const Dropdown = ({ children, open, className, placeholder, onSelect }: { children: multipleReactChildren, open?: number, className?: string, placeholder?: string, onSelect?: (n: number) => void }) => {
     const staggerMenuItems = stagger(0.02, { startDelay: 0.1 }); //generates a stagger function for the menu items
     const [isOpen, setIsOpen] = useState(false); //if the dropdown is open
     const [selectedItem, setSelectedItem] = useState(
-        open ? open : open == 0 ? open : -1
+        open ?? (open == 0 ? open : -1)
     ); //truly the worst code ive ever written
     const [scope, animate] = useAnimate(); //animation scope
 
@@ -188,6 +181,10 @@ export const Dropdown = ({ children, open, className, placeholder }: { children:
         };
     }, [isOpen]);
 
+    useEffect(() => {
+        onSelect?.(selectedItem);
+    }, [selectedItem])
+
     if (selectedItem >= children.length) setSelectedItem(-1)
 
     return (
@@ -225,32 +222,43 @@ export const Dropdown = ({ children, open, className, placeholder }: { children:
                     clipPath: "inset(10% 50% 90% 50% round 10px)",
                 }}
             >
-                {children.map ? children.map((child, index) => (
-                    <motion.button
-                        key={index}
+                {children.map ? children.map((child, index) => {
+                    if (child.type === DropdownHeader) {
+                        return (
+                            <div key={index} className='dropdownItem flex py-3 px-3 w-full justify-center flex-row'>
+                                {child}
+                            </div>
+                        )
+                    }
+
+                    return (
+                        < motion.button
+                            key={index}
+                            className='dropdownItem flex py-3 px-3 w-full'
+                            onClick={() => {
+                                child.props.onSelect?.();
+                                setIsOpen(false);
+                                setSelectedItem(index);
+                            }}
+                            whileHover={{ scale: 1.02, x: 5, fontWeight: 450 }}
+                        >
+                            {child}
+                        </motion.button>
+                    )
+                })
+                    : <motion.button
                         className='dropdownItem flex py-3 px-3 w-full'
                         onClick={() => {
-                            child.props.onSelect?.();
+                            children.at(0)?.props.onSelect?.();
                             setIsOpen(false);
-                            setSelectedItem(index);
+                            setSelectedItem(-1);
                         }}
                         whileHover={{ scale: 1.02, x: 5, fontWeight: 450 }}
                     >
-                        {child}
-                    </motion.button>
-                )) : <motion.button
-                    className='dropdownItem flex py-3 px-3 w-full'
-                    onClick={() => {
-                        children.at(0)?.props.onSelect?.();
-                        setIsOpen(false);
-                        setSelectedItem(-1);
-                    }}
-                    whileHover={{ scale: 1.02, x: 5, fontWeight: 450 }}
-                >
-                    {children}
-                </motion.button>}
+                        {children}
+                    </motion.button>}
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -262,5 +270,9 @@ export const Dropdown = ({ children, open, className, placeholder }: { children:
  * @returns {JSX.Element} - The JSX element that represents the dropdown item component.
  */
 export const DropdownItem = ({ children, onSelect }: { onSelect?: () => void, children: multipleReactChildren | reactChild | string }) => {
-    return <div className='dropdownItem flex'>{children}</div>;
+    return <div className='dropdownItem flex text-balance text-start'>{children}</div>;
+};
+
+export const DropdownHeader = ({ children }: { children: multipleReactChildren | reactChild | string }) => {
+    return <div className='dropdownHeader flex font-bold text-center w-fit'>{children}</div>;
 };

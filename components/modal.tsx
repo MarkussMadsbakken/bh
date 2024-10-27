@@ -35,7 +35,7 @@ export default function Modal(props: ModalProps) {
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <div className="fixed inset-0 z-10 w-screen">
                 <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg max-h-[100vh] overflow-y-auto h-fit">
+                    <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:max-w-4xl max-h-[80vh] sm:max-h-[50vh] overflow-y-auto h-fit w-fit">
                         {(tabs && tabs.length != 0) &&
                             <>
                                 <div className={`grid grid-cols-${tabs.length} shadow-inner`}>
@@ -45,7 +45,7 @@ export default function Modal(props: ModalProps) {
                                         </button>
                                     ))}
                                 </div>
-                                <div className="p-4">
+                                <div className="p-4 w-full">
                                     {props.onClose !== null &&
                                         <button onClick={props.onClose} className="absolute z-30 right-4">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -77,7 +77,7 @@ export default function Modal(props: ModalProps) {
                         }
 
                         {(!tabs || tabs.length == 0) &&
-                            <div className="p-4">
+                            <div className="p-4 w-fit">
                                 {props.onClose !== null &&
                                     <button onClick={props.onClose} className="absolute z-30 right-4">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

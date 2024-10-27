@@ -18,6 +18,7 @@ export const GET = auth(async function GET(req, ctx) {
         select: {
             username: true,
             firstname: true,
+            id: true,
         }
     });
 

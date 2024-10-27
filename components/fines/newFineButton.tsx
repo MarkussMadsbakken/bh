@@ -1,18 +1,20 @@
 "use client"
 import { useEffect, useState } from "react";
-import { Button, Dropdown, DropdownItem, TextArea, TextInput } from "../input";
+import { Button, Dropdown, DropdownHeader, DropdownItem, TextArea, TextInput } from "../input";
 import Modal from "../modal";
 import { useSession } from "next-auth/react";
 import Warning from "../warning";
+import { Quote, User } from "@prisma/client";
 
 export default function NewFineButton() {
     const [modalOpen, setModalOpen] = useState(false);
-    const [quote, setQuote] = useState("");
+    const [quote, setQuote] = useState<number>();
     const [context, setContext] = useState("");
     const [author, setAuthor] = useState("");
-    const [authors, setAuthors] = useState<{ username: string, firstname: string }[]>([]);
+    const [authors, setAuthors] = useState<User[]>([]);
     const [laws, setLaws] = useState<{ id: string, description: string, paragraph: number, title: string }[]>([]);
     const [law, setLaw] = useState("");
+    const [quotes, setQuotes] = useState<Quote[]>([])
 
     const session = useSession();
 
@@ -31,6 +33,18 @@ export default function NewFineButton() {
         }
     }, [modalOpen, session.data])
 
+    useEffect(() => {
+        if (author) {
+            console.log("/api/quotes/saidBy/" + author)
+            fetch("/api/quotes/saidBy/" + author).then(res => res.json()).then(quotes => setQuotes(quotes));
+        }
+        console.log(author)
+    }, [author])
+
+    useEffect(() => {
+        console.log(quotes)
+    }, [quotes])
+
     return (
         <>
             <div className="fixed bottom-0 right-0">
@@ -41,36 +55,102 @@ export default function NewFineButton() {
                 </div>
             </div>
             {modalOpen && <Modal onClose={() => setModalOpen(false)}>
-                <div className="p-2 w-full space-y-4">
+                <div className="space-y-4 w-[50vw] px-4 py-2">
                     <div className="text-xl text-center">
                         Ny bot
                     </div>
-                    <div className="flex w-full justify-center content-center">
+                    <div className="flex flex-col w-full justify-center content-center">
+                        <div className="ml-2">
+                            Hvem?
+                        </div>
                         {authors.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn forfattere...</div> :
-                            <Dropdown open={-1} className="w-full" placeholder="Hvem?">
+                            <Dropdown open={authors.indexOf(authors.find(a => a.id === author) ?? {} as User)} className="w-full" placeholder="Velg..."
+                                onSelect={(v) => {
+                                    if (authors[v]) {
+                                        console.log(authors[v].id)
+                                        setAuthor(authors[v].id)
+                                    }
+                                }
+                                }>
                                 {authors.map((author, i) => (
-                                    <DropdownItem key={i} onSelect={() => setAuthor(author.username)}>
+                                    <DropdownItem key={i}>
                                         {author.firstname}
                                     </DropdownItem>
                                 ))}
                             </Dropdown>
                         }
                     </div>
-                    <div className="flex w-full justify-center content-center">
+                    <div className="flex flex-col w-full justify-center content-center">
+                        <div className="ml-2">
+                            Lov
+                        </div>
                         {laws.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn forfattere...</div> :
-                            <Dropdown open={-1} className="w-full" placeholder="Lov">
-                                {laws.map((law, i) => (
-                                    <DropdownItem key={i} onSelect={() => setLaw(law.id)}>
-                                        <>
-                                            {"§" + law.paragraph} {law.title}
-                                        </>
+                            <Dropdown open={laws.indexOf(laws.find(l => l.id === law) ?? { id: "", description: "", paragraph: 0, title: "" })} className="w-full" placeholder="Velg..." onSelect={(n) => {
+                                if (laws[n]) {
+                                    setLaw(laws[n].id);
+                                }
+                            }} >
+                                {laws.map((law, i) => {
+
+                                    if (law.paragraph % 1 === 0) {
+                                        const reducedParagraph = law.paragraph.toString().split(".")[0];
+                                        return (
+                                            <DropdownHeader key={i}>
+                                                <>
+                                                    {"§" + reducedParagraph} - {law.title}
+                                                </>
+                                            </DropdownHeader>
+                                        )
+                                    }
+
+                                    return (
+                                        <DropdownItem key={i} onSelect={() => setLaw(law.id)}>
+                                            <>
+                                                {"§" + law.paragraph} {law.title}
+                                            </>
+                                        </DropdownItem>
+                                    )
+                                })}
+                            </Dropdown>
+                        }
+                        <div className="ml-2 mb-2 font-light">
+                            {law && laws.find(l => l.id === law)?.description}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="ml-2">
+                            Begrunnelse
+                        </div>
+                        <TextArea placeholder="Skriv..." className="w-full stagger h-12 rounded-md" onChange={e => setQuote(e)} />
+                    </div>
+
+                    <div>
+                        <div className="ml-2">
+                            Antall bøter
+                        </div>
+                        <TextInput placeholder="Skriv..." className="w-full stagger h-12 rounded-md" acceptedValues={["1", "2", "3", "4", "5", "6", "7", "8", "9", "-"]} onChange={e => setContext(e)} />
+                    </div>
+
+                    <div className="flex flex-col w-full justify-center content-center">
+                        <div className="ml-2">
+                            Sitat (valgfritt)
+                        </div>
+                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Venter på valg av forfatter...</div> :
+                            <Dropdown open={quotes.indexOf(quotes.find(q => q.id === quote) ?? {} as Quote)} className="w-full" placeholder="Velg..."
+                                onSelect={(v) => {
+                                    if (quotes[v])
+                                        setQuote(quotes[v].id)
+                                }
+                                }>
+                                {quotes.map((quote, i) => (
+                                    <DropdownItem key={i}>
+                                        {quote.quote}
                                     </DropdownItem>
                                 ))}
                             </Dropdown>
                         }
                     </div>
-                    <TextArea placeholder="Bot" className="w-full stagger h-12 rounded-md" onChange={e => setQuote(e)} />
-                    <TextInput placeholder="Kontekst" className="w-full stagger h-12 rounded-md" onChange={e => setContext(e)} />
+
                     <div>
                         <Warning title="Dette vil også opprette en bot på tihlde.org!" />
                         <Button variant="primary" className="w-full stagger h-12 rounded-md mt-2" onClick={() => { createQuote(); setModalOpen(false) }}>

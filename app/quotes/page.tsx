@@ -42,8 +42,12 @@ export default function QuotesPage() {
 
     return (
         <>
-            <div className="w-full flex-coc flex justify-center">
-                {!loading && <QuoteComponent {...quotes[0]} />}
+            <div className="w-full flex-col flex justify-center items-center">
+                {!loading && quotes.map((quote: quoteWithReactions) => (
+                    <QuoteComponent {...quote} key={quote.id} />
+                ))
+
+                }
             </div>
             {session.data.user.role.permissions.includes(permission.createquote) && <NewQuoteButton />}
         </>

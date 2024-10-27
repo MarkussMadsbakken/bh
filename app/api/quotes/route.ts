@@ -17,6 +17,7 @@ export async function GET() {
             }
         }
     })
+    console.log(quotes);
     return NextResponse.json(quotes);
 }
 
@@ -50,9 +51,7 @@ export const POST = auth(async function POST(req, ctx) {
             quote: quote.quote,
             context: quote.context,
         }
-    })
+    });
 
-    console.log(res);
-
-    return NextResponse.json({ message: "Not implemented" }, { status: 501 })
+    return NextResponse.json(res);
 }) 
