@@ -7,6 +7,7 @@ import Reaction from '@/components/reaction';
 import { useAnimate } from 'framer-motion';
 import NewReactionPicker from "@/components/newReactionPicker";
 import { Prisma, User } from '@prisma/client';
+import { permission } from '@/types/permissions';
 
 const Eph = Ephesis({ subsets: ['latin'], weight: "400" });
 
@@ -33,10 +34,9 @@ export default function QuoteComponent(props: Readonly<quoteWithReactions>) {
 
     const session = useSession();
 
-    console.log(props)
+    const date = new Date(props.createdAt).toLocaleDateString();
 
-
-    const groupedReactions = reactions?.reduce((acc: { [key: string]: [{ name: string, id: string }] }, reaction: userReaction) => {
+    const groupedReactions = reactions.reduce((acc: { [key: string]: [{ name: string, id: string }] }, reaction: userReaction) => {
         if (!acc[reaction.reaction]) {
             acc[reaction.reaction] = [{ name: reaction.user.name, id: reaction.user.id }]
             return acc;
@@ -45,6 +45,24 @@ export default function QuoteComponent(props: Readonly<quoteWithReactions>) {
         acc[reaction.reaction].push(reaction.user);
         return acc;
     }, {})
+
+    const addReaction = async (reaction: reaction) => {
+        const res = await fetch(`/api/quotes/${props.id}/reactions`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                reaction: reaction
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            setReactions([...reactions, data]);
+        }
+    }
+
 
     useEffect(() => {
 
@@ -75,12 +93,12 @@ export default function QuoteComponent(props: Readonly<quoteWithReactions>) {
                     <div className="flex flex-col md:relative justify-center items-center text-center w-full">
                         <div className="md:text-2xl text-lg w-7/12">{props.quote}</div>
                         <div className="flex md:absolute md:right-0 items-center justify-center select-none justify-self-end">
-                            <div className={"text-2xl md:pl-2 text-center md:pr-4 " + Eph.className}>{"- " + props.author}</div>
+                            <div className={"text-2xl md:pl-2 text-center md:pr-4 " + Eph.className}>{"- " + props.author.firstname}</div>
                         </div>
                     </div>
                     <div className="p-2 font-extralight text-xs text-center">{props.context}</div>
-                    <div className="mt-1 font-extralight text-xs">{props.date}</div>
-                    <div className="mt-2 mb-4 font-extralight text-xs">{"Skrevet av: " + props.writtenBy}</div>
+                    <div className="mt-1 font-extralight text-xs">{date}</div>
+                    <div className="mt-2 mb-4 font-extralight text-xs">{"Skrevet av: " + props.createdBy.firstname}</div>
                 </div>
             </div>
 
@@ -96,19 +114,24 @@ export default function QuoteComponent(props: Readonly<quoteWithReactions>) {
                         )
                     })}
 
-                    <button onClick={() => { session.data?.user ? setNewReactionPickerOpen(true) : signIn() }} ref={addReactionButtonRef}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                    </button>
+                    {session.data?.user.role.permissions.includes(permission.createquote) &&
+                        <>
+                            <button onClick={() => { session.data?.user ? setNewReactionPickerOpen(true) : signIn() }} ref={addReactionButtonRef}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </button>
 
-                    {newReactionPickerOpen &&
-                        <div ref={addReactionScope} className="absolute md:right-0 md:bottom-0 z-50 bg-neutral-700 p-2 rounded-md text-white shadow">
-                            <NewReactionPicker addReaction={(reaction) => {
-                                addReaction(reaction);
-                                setNewReactionPickerOpen(false);
-                            }} />
-                        </div>}
+                            {newReactionPickerOpen &&
+                                <div ref={addReactionScope} className="absolute md:right-0 md:bottom-0 z-50 bg-neutral-700 p-2 rounded-md text-white shadow">
+                                    <NewReactionPicker addReaction={(reaction) => {
+                                        addReaction(reaction);
+                                        setNewReactionPickerOpen(false);
+                                    }} />
+                                </div>}
+                        </>
+                    }
+
                 </div>
             </div>
         </div>

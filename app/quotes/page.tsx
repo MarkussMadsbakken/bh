@@ -44,7 +44,7 @@ export default function QuotesPage() {
     return (
         <>
             <div className="w-full flex-row items-center">
-                <QuoteComponent {...quotes[0]} />
+                {!loading && <QuoteComponent {...quotes[0]} />}
             </div>
             {session.data.user.role.permissions.includes(permission.createquote) && <NewQuoteButton />}
         </>

@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 export async function GET(req: any, ctx: { params: any; }) {
     const params = await ctx.params
-    console.log(params)
 
     const image = await prisma.user.findUnique({
         where: {
