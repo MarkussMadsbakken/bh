@@ -63,7 +63,7 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Hvem?
                         </div>
-                        {authors.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn forfattere...</div> :
+                        {authors.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn brukere...</div> :
                             <Dropdown open={authors.indexOf(authors.find(a => a.id === author) ?? {} as User)} className="w-full" placeholder="Velg..."
                                 onSelect={(v) => {
                                     if (authors[v]) {
@@ -84,7 +84,7 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Lov
                         </div>
-                        {laws.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn forfattere...</div> :
+                        {laws.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn lovverk</div> :
                             <Dropdown open={laws.indexOf(laws.find(l => l.id === law) ?? { id: "", description: "", paragraph: 0, title: "" })} className="w-full" placeholder="Velg..." onSelect={(n) => {
                                 if (laws[n]) {
                                     setLaw(laws[n].id);
@@ -135,7 +135,7 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Sitat (valgfritt)
                         </div>
-                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Venter på valg av forfatter...</div> :
+                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Venter på valg av bruker...</div> :
                             <Dropdown open={quotes.indexOf(quotes.find(q => q.id === quote) ?? {} as Quote)} className="w-full" placeholder="Velg..."
                                 onSelect={(v) => {
                                     if (quotes[v])

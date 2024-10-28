@@ -98,7 +98,7 @@ export function TextArea({ placeholder, value, onSubmit, onChange, className, te
         <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-2 h-fit ${className}`}>
             <textarea
                 ref={element}
-                className={`w-full h-full bg-transparent outline-none px-3 ${textCentered ? " text-center" : ""}}`}
+                className={`w-full h-full bg-transparent outline-none px-2 py-2 ${textCentered ? " text-center" : ""}}`}
                 placeholder={placeholder}
                 defaultValue={value}
                 onChange={(e) => {

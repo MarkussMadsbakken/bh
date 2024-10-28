@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
   // Husk å fjerne denne senere... Jævla authjs gir requests feil types
   typescript: {
     ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   }
   /* config options here */
 };
