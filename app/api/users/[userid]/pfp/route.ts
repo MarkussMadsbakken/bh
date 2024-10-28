@@ -16,6 +16,8 @@ export async function GET(req: any, ctx: { params: any; }) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    console.log(user);
+
     return NextResponse.json(user.image);
 }
 

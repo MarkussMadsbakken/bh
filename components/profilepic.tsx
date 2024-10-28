@@ -14,12 +14,12 @@ export default function ProfilePic({ onclick, userid, className }: { onclick?: (
         if (session.data) {
             fetch(`/api/users/${userid}/pfp`)
                 .then(res => res.json()).then(data => {
-                    if (!data || !data.image) {
+                    if (!data) {
                         console.error("No image found for user", userid);
                         setLoading(false);
                         return;
                     }
-                    setImageLink(data.image);
+                    setImageLink(data);
                 })
         } else {
             if (session.status !== "loading") {

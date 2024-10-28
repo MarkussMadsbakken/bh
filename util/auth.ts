@@ -34,6 +34,8 @@ async function createUser(username: string, token: string) {
         }
     });
 
+    console.log(tihldeuser);
+
     const a = await prisma.user.create({
         data: {
             username: username,
@@ -92,6 +94,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             role = user?.role ? roles[user.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER"] : roles.GUEST;
+
+            // Check if pfp has changed
+            const tihldeuser: TihldeUser = await fetch(`https://api.tihlde.org/users/${credentials.username}/`, {
+                headers: {
+                    "X-Csrf-Token": data.token,
+                }
+            }).then(res => res.json());
+
+            if (user?.image !== tihldeuser.image) {
+                const a = await prisma.user.update({
+                    where: {
+                        id: user?.id
+                    },
+                    data: {
+                        image: tihldeuser.image
+                    }
+                });
+            }
 
             return {
                 name: credentials.username,
