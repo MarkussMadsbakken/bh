@@ -6,16 +6,17 @@ const prisma = new PrismaClient();
 export async function GET(req: any, ctx: { params: any; }) {
     const params = await ctx.params
 
-    const image = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
         where: {
             id: params.userid
         },
-        select: {
-            image: true
-        }
     });
 
-    return NextResponse.json(image)
+    if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user.image);
 }
 
 export async function POST() {
