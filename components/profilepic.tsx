@@ -20,6 +20,7 @@ export default function ProfilePic({ onclick, userid, className }: { onclick?: (
                         return;
                     }
                     setImageLink(data);
+                    setLoading(false);
                 })
         } else {
             if (session.status !== "loading") {
@@ -31,6 +32,7 @@ export default function ProfilePic({ onclick, userid, className }: { onclick?: (
     return (
         <div className={`flex h-fit w-20 justify-center ${className} `}>
             <button
+                className="w-full h-full"
                 onClick={() => {
                     if (loading) return;
                     onclick?.();

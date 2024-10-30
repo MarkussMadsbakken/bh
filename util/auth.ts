@@ -44,6 +44,8 @@ async function createUser(username: string, token: string) {
             firstname: tihldeuser.first_name,
         }
     })
+
+    return a;
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
