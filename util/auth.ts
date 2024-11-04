@@ -104,7 +104,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
             }).then(res => res.json());
 
+            console.log(tihldeuser.image);
+            console.log(user?.image);
             if (user?.image !== tihldeuser.image) {
+                try{
                 const a = await prisma.user.update({
                     where: {
                         id: user?.id
@@ -113,6 +116,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         image: tihldeuser.image
                     }
                 });
+            } catch (e) {
+                console.log("Error updating user");
+                console.log(e);
+            }
             }
 
             return {

@@ -15,7 +15,7 @@ export default function ProfilePic({ onclick, userid, className }: { onclick?: (
             fetch(`/api/users/${userid}/pfp`)
                 .then(res => res.json()).then(data => {
                     if (!data) {
-                        console.error("No image found for user", userid);
+                        console.log("No image found for user", userid);
                         setLoading(false);
                         return;
                     }
