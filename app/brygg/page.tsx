@@ -12,25 +12,13 @@ export default async function BryggPage() {
 
 
     return (
-        <div style ={{
-            padding: "20px",
-            display:"flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column"
-        }}>
-            <h1 className={"header"}>
+        <div className ="p-5 flex content-center items-center flex-col">
+            <h1 className="text-white text-4xl text-center font-bold outline-black outline-2">
                 Velkommen til bryggesiden
             </h1>
-            <div style={{
-                display: "flex",
-                marginTop: "20px", // Avstand fra overskriften
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "20px"
-            }}>
-                 <Image src="/proggepils.webp" width={1000} height={1000} alt="Proggepils logo" className="beer-pics" />
-                 <Image src="/test.webp" width={1000} height={1000} alt="Cachecooler logo" className="beer-pics" />
+            <div className="p-5 flex gap-5 mt-5 justify-center align-middle">
+                 <Image src="/proggepils.webp" width={1000} height={1000} alt="Proggepils logo" className="w-[30%] h-[500px] object-cover rounded-lg border-2 border-white transition-all duration-500 ease-in-out hover:w-[40%]"/>
+                 <Image src="/test.webp" width={1000} height={1000} alt="Cachecooler logo" className="w-[30%] h-[500px] object-cover rounded-lg border-2 border-white transition-all duration-500 ease-in-out hover:w-[40%]" />
             </div>
         </div>
     )
