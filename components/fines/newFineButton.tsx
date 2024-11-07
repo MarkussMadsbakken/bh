@@ -8,21 +8,23 @@ import { Quote, User } from "@prisma/client";
 
 export default function NewFineButton() {
     const [modalOpen, setModalOpen] = useState(false);
-    const [quote, setQuote] = useState<number>();
-    const [context, setContext] = useState("");
     const [user, setUser] = useState("");
     const [users, setUsers] = useState<User[]>([]);
     const [laws, setLaws] = useState<{ id: string, description: string, paragraph: number, title: string }[]>([]);
     const [law, setLaw] = useState("");
-    const [quotes, setQuotes] = useState<Quote[]>([])
-
+    const [reason, setReason] = useState("");
+    const [fineAmount, setFineAmount] = useState<number | undefined>();
+    const [quotes, setQuotes] = useState<Quote[]>([]);
+    const [quote, setQuote] = useState<number | undefined>();
     const session = useSession();
 
-    const createQuote = () => {
-        fetch("/api/quotes", {
+    const createFine = () => {
+        console.log({ user, law, reason, fineAmount, quote });
+        const res = fetch("/api/fines", {
             method: "POST",
-            body: JSON.stringify({ quote, context, user }),
-        });
+            body: JSON.stringify({ user, law, reason, fineAmount, hasQuote: quote !== undefined, quote }),
+        }).then(res => res.json()).then(data => console.log(data));
+        //setModalOpen(false)
     }
 
     useEffect(() => {
@@ -127,14 +129,14 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Begrunnelse
                         </div>
-                        <TextArea placeholder="Skriv..." className="w-full stagger h-12 rounded-md" onChange={e => setQuote(e)} />
+                        <TextArea placeholder="Skriv..." className="w-full stagger h-12 rounded-md" onChange={e => setReason(e)} />
                     </div>
 
                     <div>
                         <div className="ml-2">
                             Antall bøter
                         </div>
-                        <TextInput placeholder="Skriv..." className="w-full stagger h-12 rounded-md" acceptedValues={["1", "2", "3", "4", "5", "6", "7", "8", "9", "-"]} onChange={e => setContext(e)} />
+                        <TextInput placeholder="Skriv..." className="w-full stagger h-12 rounded-md" acceptedValues={["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-"]} onChange={e => setFineAmount(parseInt(e))} />
                     </div>
 
                     <div className="flex flex-col w-full justify-center content-center">
@@ -162,7 +164,7 @@ export default function NewFineButton() {
 
                     <div>
                         <Warning title="Dette vil også opprette en bot på tihlde.org!" />
-                        <Button variant="primary" className="w-full stagger h-12 rounded-md mt-2" onClick={() => { createQuote(); setModalOpen(false) }}>
+                        <Button variant="primary" className="w-full stagger h-12 rounded-md mt-2" onClick={() => { createFine(); }}>
                             Opprett bot
                         </Button>
                     </div>

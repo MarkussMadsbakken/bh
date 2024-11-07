@@ -80,10 +80,11 @@ model QuoteReaction {
   userId   String
 }
 
+// Only created when a fine has a quote. The rest of fines are gotten from tihlde.org
 model Fine {
-  id      Int    @id @default(autoincrement())
-  Quote   Quote? @relation(fields: [quoteId], references: [id])
-  quoteId Int?   @unique
+  id      Int   @id @default(autoincrement())
+  Quote   Quote @relation(fields: [quoteId], references: [id])
+  quoteId Int   @unique
 }
 
 // Brygginger

@@ -6,13 +6,19 @@ import { useEffect, useState, useRef } from "react";
 type reactChild = React.JSX.Element;
 type multipleReactChildren = React.JSX.Element[];
 
-export const Button = ({ variant, children, className, onClick, ...rest }: { variant?: String, children?: React.ReactNode, className?: String, onClick?: () => void }) => {
+export type ButtonVariant = "primary" | "secondary" | "confirm";
+
+export const Button = ({ variant, children, className, onClick, ...rest }: { variant?: ButtonVariant, children?: React.ReactNode, className?: String, onClick?: () => void }) => {
+    const ButtonVariantMap = {
+        primary: "bg-white border-neutral-500 hover:bg-neutral-300 text-black",
+        secondary: "bg-neutral-700 hover:bg-blue-500 text-white",
+        confirm: "bg-green-500 hover:bg-green-600 text-white",
+    }
+
     return (
         <button
             className={
-                variant == "primary"
-                    ? `px-7 py-2 max-w-full max-h-full rounded-lg bg-white border-2 hover:bg-neutral-200 text-black ${className}`
-                    : `px-7 py-2 max-w-full max-h-full rounded-lg bg-neutral-700 hover:bg-blue-500 text-white ${className}`
+                `px-7 py-2 max-w-full max-h-full rounded-lg bg-white border text-black ${variant ? ButtonVariantMap[variant] : ButtonVariantMap.primary} ${className}`
             }
             {...rest}
             onClick={onClick}
@@ -61,7 +67,7 @@ export const TextInput = ({ placeholder, value, onSubmit, onChange, className, t
     }
 
     return (
-        <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-1 ${className}`}>
+        <div className={`min-w-52 flex flex-row bg-white border border-neutral-500 rounded-lg p-1 ${className}`}>
             <input
                 ref={element}
                 type={type || "text"}
@@ -95,7 +101,7 @@ export function TextArea({ placeholder, value, onSubmit, onChange, className, te
     }
 
     return (
-        <div className={`min-w-52 flex flex-row bg-white border border-neutral-300 rounded-lg p-2 h-fit ${className}`}>
+        <div className={`min-w-52 flex flex-row bg-white border border-neutral-500 rounded-lg p-2 h-fit ${className}`}>
             <textarea
                 ref={element}
                 className={`w-full h-full bg-transparent outline-none px-2 py-2 ${textCentered ? " text-center" : ""}}`}
@@ -191,7 +197,7 @@ export const Dropdown = ({ children, open, className, placeholder, onSelect }: {
     return (
         <div ref={scope} className={'w-52 h-12 ' + className}>
             <motion.button
-                className='w-full h-full flex flex-row justify-between rounded-md border border-neutral-300 bg-white'
+                className='w-full h-full flex flex-row justify-between rounded-md border border-neutral-500 bg-white'
                 onClick={(e) => {
                     if (innerButtonRef.current?.contains(e.target)) {
                         setSelectedItem(-1);
@@ -236,7 +242,7 @@ export const Dropdown = ({ children, open, className, placeholder, onSelect }: {
 
             <div
                 id='dropdown'
-                className={`first-letter:flex flex-col justify-center mt-2 overflow-hidden rounded-md border border-neutral-300 bg-white ${isOpen ? "h-fit" : "h-0"}`}
+                className={`first-letter:flex flex-col justify-center mt-2 overflow-hidden rounded-md border border-neutral-500 bg-white ${isOpen ? "h-fit" : "h-0"}`}
                 style={{
                     pointerEvents: isOpen ? "auto" : "none",
                     clipPath: "inset(10% 50% 90% 50% round 10px)",
