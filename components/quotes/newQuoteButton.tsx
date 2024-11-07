@@ -24,7 +24,6 @@ export default function NewQuoteButton() {
     useEffect(() => {
         if (session.data && modalOpen) {
             fetch("/api/users/members").then(res => res.json()).then(members => setAuthors(members));
-            fetch("/api/fines/laws").then(res => res.json()).then(laws => console.log(laws));
         }
     }, [modalOpen, session.data])
 

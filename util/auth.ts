@@ -1,5 +1,5 @@
 import { roles } from "@/types/permissions";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import NextAuth, { User } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { TihldeUser } from "./tihldeTypes";
@@ -34,11 +34,59 @@ async function createUser(username: string, token: string) {
         }
     });
 
-    console.log(tihldeuser);
-
     const a = await prisma.user.create({
         data: {
             username: username,
+            role: role,
+            image: tihldeuser.image,
+            firstname: tihldeuser.first_name,
+        }
+    })
+
+    return a;
+}
+
+async function updateUser(username: string, token: string) {
+
+    // Get user memberships
+    const tihldeMemberships = await fetch(`https://api.tihlde.org/users/${username}/memberships/`, {
+        headers: {
+            "X-Csrf-Token": token,
+        }
+    }).then(res => res.json());
+
+    // Get user
+    const tihldeuser: TihldeUser = await fetch(`https://api.tihlde.org/users/${username}/`, {
+        headers: {
+            "X-Csrf-Token": token,
+        }
+    }).then(res => res.json());
+
+    let role: Role = Role.GUEST;
+
+    // Check if member of bh
+    tihldeMemberships.results.forEach((element: any) => {
+        if (element.group.slug === "tihldebh") {
+            if (element.memberships_type === "LEADER") {
+                role = Role.LEADER;
+            } else {
+                role = Role.MEMBER;
+            }
+        }
+    });
+
+    // manually check if member of bh indeks
+    // TODO: add this to database :=)
+
+    if (username === "markumad" || username === "jacoble" || username === "nikoltan ") {
+        role = Role.INDEKS;
+    }
+
+    const a = await prisma.user.update({
+        where: {
+            username: username
+        },
+        data: {
             role: role,
             image: tihldeuser.image,
             firstname: tihldeuser.first_name,
@@ -95,32 +143,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 await createUser(credentials.username as string, data.token);
             }
 
-            role = user?.role ? roles[user.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER"] : roles.GUEST;
+            const updatedUser = await updateUser(credentials.username as string, data.token);
 
-            // Check if pfp has changed
-            const tihldeuser: TihldeUser = await fetch(`https://api.tihlde.org/users/${credentials.username}/`, {
-                headers: {
-                    "X-Csrf-Token": data.token,
-                }
-            }).then(res => res.json());
-
-            console.log(tihldeuser.image);
-            console.log(user?.image);
-            if (user?.image !== tihldeuser.image) {
-                try{
-                const a = await prisma.user.update({
-                    where: {
-                        id: user?.id
-                    },
-                    data: {
-                        image: tihldeuser.image
-                    }
-                });
-            } catch (e) {
-                console.log("Error updating user");
-                console.log(e);
-            }
-            }
+            role = user?.role ? roles[updatedUser.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER"] : roles.GUEST;
 
             return {
                 name: credentials.username,
@@ -146,15 +171,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const name = token.name ?? user.name
 
             if (name) {
-                const u = await prisma.user.findFirst({
-                    where:
-                    {
-                        username: name
-                    }
-                })
+                const u = await updateUser(name, token.token as string);
 
                 if (u) {
-                    token.role = u?.role ? roles[u.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER"] : roles.GUEST;
+                    token.role = u?.role ? roles[u.role as "ADMIN" | "MEMBER" | "GUEST" | "LEADER" | "INDEKS"] : roles.GUEST;
                 }
             }
 

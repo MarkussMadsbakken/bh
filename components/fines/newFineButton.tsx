@@ -10,8 +10,8 @@ export default function NewFineButton() {
     const [modalOpen, setModalOpen] = useState(false);
     const [quote, setQuote] = useState<number>();
     const [context, setContext] = useState("");
-    const [author, setAuthor] = useState("");
-    const [authors, setAuthors] = useState<User[]>([]);
+    const [user, setUser] = useState("");
+    const [users, setUsers] = useState<User[]>([]);
     const [laws, setLaws] = useState<{ id: string, description: string, paragraph: number, title: string }[]>([]);
     const [law, setLaw] = useState("");
     const [quotes, setQuotes] = useState<Quote[]>([])
@@ -21,25 +21,28 @@ export default function NewFineButton() {
     const createQuote = () => {
         fetch("/api/quotes", {
             method: "POST",
-            body: JSON.stringify({ quote, context, author }),
-
+            body: JSON.stringify({ quote, context, user }),
         });
     }
 
     useEffect(() => {
         if (session.data && modalOpen) {
-            fetch("/api/users/members").then(res => res.json()).then(members => setAuthors(members));
+            fetch("/api/users/members").then(res => res.json()).then(members => setUsers(members));
             fetch("/api/fines/laws").then(res => res.json()).then(laws => setLaws(laws));
         }
     }, [modalOpen, session.data])
 
     useEffect(() => {
-        if (author) {
-            console.log("/api/quotes/saidBy/" + author)
-            fetch("/api/quotes/saidBy/" + author).then(res => res.json()).then(quotes => setQuotes(quotes));
+        if (user) {
+            console.log("/api/quotes/saidBy/" + user)
+            fetch("/api/quotes/saidBy/" + user).then(res => res.json()).then(quotes => {
+                setQuotes(quotes)
+            });
+        } else {
+            setQuotes([]);
+            setQuote(undefined);
         }
-        console.log(author)
-    }, [author])
+    }, [user])
 
     useEffect(() => {
         console.log(quotes)
@@ -55,7 +58,7 @@ export default function NewFineButton() {
                 </div>
             </div>
             {modalOpen && <Modal onClose={() => setModalOpen(false)}>
-                <div className="space-y-4 w-[50vw] px-4 py-2">
+                <div className="space-y-4 sm:max-w-4xl md:w-[50vw] px-4 py-2">
                     <div className="text-xl text-center">
                         Ny bot
                     </div>
@@ -63,18 +66,19 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Hvem?
                         </div>
-                        {authors.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn brukere...</div> :
-                            <Dropdown open={authors.indexOf(authors.find(a => a.id === author) ?? {} as User)} className="w-full" placeholder="Velg..."
+                        {users.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Laster inn brukere...</div> :
+                            <Dropdown open={users.indexOf(users.find(a => a.id === user) ?? {} as User)} className="w-full" placeholder="Velg..."
                                 onSelect={(v) => {
-                                    if (authors[v]) {
-                                        console.log(authors[v].id)
-                                        setAuthor(authors[v].id)
+                                    if (users[v]) {
+                                        setUser(users[v].id)
+                                    } else {
+                                        setUser("");
                                     }
                                 }
                                 }>
-                                {authors.map((author, i) => (
+                                {users.map((user, i) => (
                                     <DropdownItem key={i}>
-                                        {author.firstname}
+                                        {user.firstname}
                                     </DropdownItem>
                                 ))}
                             </Dropdown>
@@ -88,6 +92,8 @@ export default function NewFineButton() {
                             <Dropdown open={laws.indexOf(laws.find(l => l.id === law) ?? { id: "", description: "", paragraph: 0, title: "" })} className="w-full" placeholder="Velg..." onSelect={(n) => {
                                 if (laws[n]) {
                                     setLaw(laws[n].id);
+                                } else {
+                                    setLaw("");
                                 }
                             }} >
                                 {laws.map((law, i) => {
@@ -135,11 +141,14 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Sitat (valgfritt)
                         </div>
-                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center">Venter på valg av bruker...</div> :
+                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center"> {user ? users.find(_user => _user.id === user)?.firstname + " har ingen sitater. Lame!" : "Venter på valg av bruker..."}</div> :
                             <Dropdown open={quotes.indexOf(quotes.find(q => q.id === quote) ?? {} as Quote)} className="w-full" placeholder="Velg..."
                                 onSelect={(v) => {
-                                    if (quotes[v])
+                                    if (quotes[v]) {
                                         setQuote(quotes[v].id)
+                                    } else {
+                                        setQuote(undefined);
+                                    }
                                 }
                                 }>
                                 {quotes.map((quote, i) => (

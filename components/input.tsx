@@ -126,6 +126,7 @@ export const Dropdown = ({ children, open, className, placeholder, onSelect }: {
         open ?? (open == 0 ? open : -1)
     ); //truly the worst code ive ever written
     const [scope, animate] = useAnimate(); //animation scope
+    const innerButtonRef = useRef<HTMLDivElement>(null);
 
     Array.isArray(children) ? children : children = [children];
 
@@ -191,7 +192,14 @@ export const Dropdown = ({ children, open, className, placeholder, onSelect }: {
         <div ref={scope} className={'w-52 h-12 ' + className}>
             <motion.button
                 className='w-full h-full flex flex-row justify-between rounded-md border border-neutral-300 bg-white'
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={(e) => {
+                    if (innerButtonRef.current?.contains(e.target)) {
+                        setSelectedItem(-1);
+                        setIsOpen(false);
+                        return;
+                    }
+                    setIsOpen(!isOpen)
+                }}
             >
                 <div className='px-3 h-full flex justify-center items-center'>
                     {selectedItem === -1 ?
@@ -199,18 +207,30 @@ export const Dropdown = ({ children, open, className, placeholder, onSelect }: {
                         : children[selectedItem] ? children[selectedItem].props.children : "Select"}
                 </div>
 
-                <div
-                    className='arrow self-center p-2'
-                    style={{ transformOrigin: "50% 55%" }}
-                >
-                    <svg
-                        width='25'
-                        height='20'
-                        viewBox='-10 -12 20 20'
-                        transform='scale(0.6)'
+                <div className="flex flex-row self-center">
+                    {children[selectedItem] &&
+                        <div ref={innerButtonRef} className="self-center w-fit h-fit" onClick={(e) => {
+                            console.log("clicked");
+                        }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+
+                        </div>
+                    }
+                    <div
+                        className='arrow self-center p-2'
+                        style={{ transformOrigin: "50% 55%" }}
                     >
-                        <path d='M -10 -3 C -12 -5 -10 -7 -8 -5 L 0 2 L 0 2 L 8 -5 C 10 -7 12 -5 10 -3 L 1 5 C 0 6 0 6 -1 5' />
-                    </svg>
+                        <svg
+                            width='25'
+                            height='20'
+                            viewBox='-10 -12 20 20'
+                            transform='scale(0.6)'
+                        >
+                            <path d='M -10 -3 C -12 -5 -10 -7 -8 -5 L 0 2 L 0 2 L 8 -5 C 10 -7 12 -5 10 -3 L 1 5 C 0 6 0 6 -1 5' />
+                        </svg>
+                    </div>
                 </div>
             </motion.button>
 

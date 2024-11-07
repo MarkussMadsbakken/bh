@@ -29,6 +29,19 @@ export const roles = {
             ],
             shortname: "Leder"
         } as Role,
+    INDEKS:
+        {
+            permissions: [
+                permission.editevents,
+                permission.createfine,
+                permission.viewfines,
+                permission.viewquotes,
+                permission.createquote,
+                permission.editallquotes,
+                permission.addreaction,
+            ],
+            shortname: "BH Indeks"
+        } as Role,
     ADMIN:
         {
             permissions: [
