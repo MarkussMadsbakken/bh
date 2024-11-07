@@ -74,7 +74,7 @@ export default function QuoteComponent(props: Readonly<quoteWithReactions>) {
                 reaction: reaction,
                 quoteId: props.id,
                 user: {
-                    firstname: session.data?.user.name ?? '',
+                    firstname: session.data?.user.firstname ?? '',
                     id: session.data?.user.id ?? "?",
                     username: session.data?.user.firstname ?? "",
                     role: "MEMBER",

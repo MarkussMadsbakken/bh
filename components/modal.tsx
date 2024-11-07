@@ -35,7 +35,7 @@ export default function Modal(props: ModalProps) {
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <div className="fixed inset-0 z-10 w-screen">
                 <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:max-w-4xl max-h-[80vh] sm:max-h-[50vh] overflow-y-auto h-fit w-fit">
+                    <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:max-w-4xl max-h-[50vh] sm:max-h-[80vh] overflow-y-auto h-fit w-fit">
                         {(tabs && tabs.length != 0) &&
                             <>
                                 <div className={`grid grid-cols-${tabs.length} shadow-inner`}>
