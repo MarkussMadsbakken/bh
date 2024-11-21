@@ -2,7 +2,6 @@
 import NewQuoteButton from "@/components/quotes/newQuoteButton";
 import QuoteComponent, { quoteWithReactions } from "@/components/quotes/quoteComponent";
 import { permission } from "@/types/permissions";
-import { PrismaClient, Quote } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -43,7 +42,7 @@ export default function QuotesPage() {
     return (
         <>
             <div className="w-full flex-col flex justify-center items-center">
-                {!loading && quotes.map((quote: quoteWithReactions) => (
+                {!loading && quotes.toReversed().map((quote: quoteWithReactions) => (
                     <QuoteComponent {...quote} key={quote.id} />
                 ))
 

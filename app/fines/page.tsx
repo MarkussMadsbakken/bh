@@ -30,6 +30,8 @@ export default async function FinesPage() {
     )
         .then(res => res.json());
 
+
+
     return (
         <>
             <div className="w-screen flex flex-col">

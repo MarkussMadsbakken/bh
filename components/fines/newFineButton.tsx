@@ -143,7 +143,7 @@ export default function NewFineButton() {
                         <div className="ml-2">
                             Sitat (valgfritt)
                         </div>
-                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center"> {user ? users.find(_user => _user.id === user)?.firstname + " har ingen sitater. Lame!" : "Venter på valg av bruker..."}</div> :
+                        {quotes.length === 0 ? <div className="w-full h-12 flex justify-center items-center border rounded-md border-neutral-500"> {user ? users.find(_user => _user.id === user)?.firstname + " har ingen sitater. Lame!" : "Venter på valg av bruker..."}</div> :
                             <Dropdown open={quotes.indexOf(quotes.find(q => q.id === quote) ?? {} as Quote)} className="w-full" placeholder="Velg..."
                                 onSelect={(v) => {
                                     if (quotes[v]) {
