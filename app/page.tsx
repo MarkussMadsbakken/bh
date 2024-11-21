@@ -1,4 +1,5 @@
 import BryggCountdown from "@/components/bryggcountdown";
+import MarkdownEditor from "@/components/markdown/markdownEditor";
 import NewPostButton from "@/components/posts/newPostButton";
 import Image from "next/image";
 
@@ -9,6 +10,7 @@ export default function Home() {
             <BryggCountdown when={new Date(Date.parse("2024-11-24T06:23:28.757Z"))} />
             <Image src="/bh.webp" width={100} height={100} alt="logo" />
             <NewPostButton />
+            <MarkdownEditor />
         </div>
     );
 }
