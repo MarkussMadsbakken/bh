@@ -2,6 +2,7 @@
 
 import { BoldItalicUnderlineToggles, InsertImage, KitchenSinkToolbar, ListsToggle, MDXEditor, MDXEditorMethods, StrikeThroughSupSubToggles, UndoRedo, codeBlockPlugin, codeMirrorPlugin, diffSourcePlugin, directivesPlugin, frontmatterPlugin, headingsPlugin, imagePlugin, linkDialogPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin, sandpackPlugin, tablePlugin, thematicBreakPlugin, toolbarPlugin } from "@mdxeditor/editor";
 import { FC } from "react";
+import { CustomInsertImage } from './customPlugins'; // Import the custom Image plugin
 
 interface EditorProps {
     markdown: string;
@@ -15,10 +16,19 @@ interface EditorProps {
 const Editor: FC<EditorProps> = ({ markdown, editorRef }) => {
     return (
         <MDXEditor
+            className="custom-mdxeditor"
             markdown={markdown}
             ref={editorRef}
             plugins={[
-                toolbarPlugin({ toolbarContents: () => <KitchenSinkToolbar /> }),
+                toolbarPlugin({
+                    toolbarContents: () =>
+                        <>
+                            <UndoRedo />
+                            <BoldItalicUnderlineToggles />
+                            <CustomInsertImage />
+                        </>
+
+                }),
                 listsPlugin(),
                 quotePlugin(),
                 headingsPlugin(),

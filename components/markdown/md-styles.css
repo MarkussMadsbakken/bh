@@ -1,0 +1,8 @@
+.custom-mdxeditor h1 {
+    @apply text-2xl;
+}
+
+.custom-mdxeditor h2,
+.custom-mdxeditor h3 {
+    @apply text-blue-600;
+}
