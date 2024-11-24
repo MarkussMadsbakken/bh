@@ -10,7 +10,16 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "leptonstoragepro.blob.core.windows.net",
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "bh.tihlde.org",
+      },
+      {
+        protocol: "http",
+        hostname: "bh.tihlde.org",
+      },
+
     ]
   },
   // Husk å fjerne denne senere... Jævla authjs gir requests feil types

@@ -6,6 +6,7 @@ import { CustomInsertImage } from './customPlugins'; // Import the custom Image 
 
 interface EditorProps {
     markdown: string;
+    editable: boolean;
     editorRef?: React.RefObject<MDXEditorMethods | null>;
 }
 
@@ -13,22 +14,24 @@ interface EditorProps {
  * Extend this Component further with the necessary plugins or props you need.
  * proxying the ref is necessary. Next.js dynamically imported components don't support refs.
  */
-const Editor: FC<EditorProps> = ({ markdown, editorRef }) => {
+const Editor: FC<EditorProps> = ({ markdown, editorRef, editable }) => {
     return (
         <MDXEditor
+            readOnly={!editable}
             className="custom-mdxeditor"
             markdown={markdown}
             ref={editorRef}
             plugins={[
-                toolbarPlugin({
-                    toolbarContents: () =>
-                        <>
-                            <UndoRedo />
-                            <BoldItalicUnderlineToggles />
-                            <CustomInsertImage />
-                        </>
+                editable ?
+                    toolbarPlugin({
+                        toolbarContents: () =>
+                            <>
+                                <UndoRedo />
+                                <BoldItalicUnderlineToggles />
+                                <CustomInsertImage />
+                            </>
 
-                }),
+                    }) : {},
                 listsPlugin(),
                 quotePlugin(),
                 headingsPlugin(),

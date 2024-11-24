@@ -3,8 +3,9 @@
 import { useCallback, useState } from "react";
 import Dropzone from "react-dropzone";
 import { motion } from "framer-motion";
+import { useUserImage } from "@/util/minio";
 
-export function ImageUpload() {
+export function ImageUpload({ onUpload }: { onUpload?: (filename: string) => void }) {
     const iconVariants = {
         hidden: {
             translateY: -20,
@@ -21,6 +22,18 @@ export function ImageUpload() {
     const uploadFile = async (file: any) => {
         const formData = new FormData();
         formData.append("file", file);
+        const res = await fetch("/api/storage/images/", {
+            method: "POST",
+            body: formData
+        });
+        if (res.ok) {
+            setLoading(false);
+            const data = await res.json();
+
+            // This should be using useUserImage, but that somehow breaks everything...
+            // cool!
+            onUpload?.(`http://bh.tihlde.org:9000/user-image/${data.image}`);
+        }
     };
 
     return (

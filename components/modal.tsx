@@ -1,7 +1,9 @@
-"use client"
+"use client";
 import { useClickOutside } from "@/util/hooks";
+import { useModalContext } from "@/util/modalProvider";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import ReactDOM from "react-dom";
 
 interface ModalProps {
     onClose?: () => void;
@@ -9,6 +11,17 @@ interface ModalProps {
 }
 
 export default function Modal(props: ModalProps) {
+    const { addModal, removeModal, isTopModal } = useModalContext();
+    const [modalId, setModalId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const id = addModal();
+        setModalId(id);
+        return () => {
+            removeModal(id);
+        };
+    }, [addModal, removeModal]);
+
     const tabs = React.Children.map(props.children, (child) => {
         if (!React.isValidElement(child)) {
             return null;
@@ -18,23 +31,32 @@ export default function Modal(props: ModalProps) {
 
     const [activeTab, setActiveTab] = useState(0);
     const tabNames = tabs?.map((tab) => tab?.props.name);
-    const modalRef = React.useRef<HTMLDivElement>(null);
+    const modalRef = useRef<HTMLDivElement>(null);
 
     const tabContentVariants = {
         visible: { opacity: 1, x: 0 },
         left: { opacity: 0, x: -200 },
         right: { opacity: 0, x: 200 },
-    }
+        hidden: { opacity: 0, display: 'none' },
+    };
+
+    const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+    };
 
     useClickOutside(modalRef, () => {
-        props.onClose?.();
-    })
+        if (modalId !== null && isTopModal(modalId)) {
+            props.onClose?.();
+        }
+    });
 
-    return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} role="dialog" className="relative z-[999]" aria-labelledby="modal-title" aria-modal="true">
+    if (modalId === null) return null;
+
+    return ReactDOM.createPortal(
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} role="dialog" className="relative fixed z-[999]" aria-labelledby="modal-title" aria-modal="true">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <div className="fixed inset-0 z-10 w-screen">
-                <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div className="fixed inset-0 w-screen">
+                <div className="flex min-h-screen items-end justify-center p-4 text-center sm:items-center sm:p-0" >
                     <motion.div ref={modalRef} layout transition={{ duration: 0.15 }} className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:max-w-5xl max-h-[50vh] sm:max-h-[80vh] overflow-y-auto h-fit w-fit">
                         {(tabs && tabs.length != 0) &&
                             <>
@@ -91,15 +113,15 @@ export default function Modal(props: ModalProps) {
                     </motion.div>
                 </div>
             </div>
-        </motion.div>
+        </motion.div >,
+        document.body
     );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function ModalTab({ children, name }: Readonly<{ children: React.ReactNode, name: string }>) {
-    return (
-        <div className="flex flex-col">
-            {children}
-        </div>
-    );
+export function ModalTab({
+    children,
+    name,
+}: Readonly<{ children: React.ReactNode; name: string }>) {
+    return <div className="flex flex-col">{children}</div>;
 }

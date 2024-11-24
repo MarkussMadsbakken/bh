@@ -1,37 +1,37 @@
-"use client";
-import { iconComponentFor$, imagePlugin, InsertImage, insertImage$, readOnly$, RealmPlugin, saveImage$, TooltipWrap, useCellValues, usePublisher, useTranslation } from "@mdxeditor/editor";
-import { forwardRef, useEffect, useState } from "react";
-import { Button } from "../input";
-import Modal, { ModalTab } from "../modal";
-import { ImageUpload } from "../imageUpload";
+"use client"
+import { useEffect, useState } from "react";
+import Modal, { ModalTab } from "./modal";
+import { ImageUpload } from "./imageUpload";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { ImageSelectModal } from "../imageSelectModal";
 
 
-export const CustomInsertImage = forwardRef((props, ref) => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const [readOnly, iconComponentFor] = useCellValues(readOnly$, iconComponentFor$);
-    const translation = useTranslation();
-    const publishImage = usePublisher(insertImage$);
+export function ImageSelectModal({ onSelect, onCancel }: { onSelect?: (image: string) => void, onCancel?: () => void }) {
 
     return (
-        <>
-            <button onClick={() => setModalOpen(!modalOpen)} className="hover:bg-neutral-200 p-1 rounded">
-                <TooltipWrap title={translation("toolbar.image", "insert image")}>
-                    {iconComponentFor("add_photo")}
-                </TooltipWrap>
-            </button>
-            {
-                modalOpen && <ImageSelectModal onSelect={(image) => {
-                    publishImage({ src: image });
-                    setModalOpen(false);
-                }
-                } onCancel={() => setModalOpen(false)} />
-            }
-        </>
+        <Modal onClose={() => onCancel?.()}>
+            <ModalTab name="Velg">
+                <div className="w-screen max-w-xl flex flex-col space-y-8 mb-4 font-semibold">
+                    <div className="w-full h-fit text-center text-lg">
+                        Velg bilde
+                    </div>
+                    <ViewUploadedImages onSelect={onSelect} />
+                </div>
+            </ModalTab>
+            <ModalTab name="Last opp">
+                <div className="w-full flex flex-col space-y-8 mb-4">
+                    <div className="w-full h-fit text-center text-lg font-semibold">
+                        Last opp
+                    </div>
+                    <div className="w-screen max-w-xl flex flex-col justify-center h-24">
+                        <ImageUpload onUpload={onSelect} />
+                    </div>
+                </div>
+            </ModalTab>
+        </Modal>
     )
-});
+}
+
 
 function ViewUploadedImages({ onSelect }: { onSelect?: (image: string) => void }) {
     const [images, setImages] = useState<string[]>([]);

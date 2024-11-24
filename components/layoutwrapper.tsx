@@ -1,5 +1,6 @@
 "use client"
 import { LoginProvider } from "@/util/loginprovider";
+import { ModalProvider } from "@/util/modalProvider";
 import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 export default function LayoutWrapper({
@@ -31,7 +32,9 @@ export default function LayoutWrapper({
     return (
         <SessionProvider>
             <LoginProvider>
-                {children}
+                <ModalProvider>
+                    {children}
+                </ModalProvider>
             </LoginProvider>
         </SessionProvider>
     )
