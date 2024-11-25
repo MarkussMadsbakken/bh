@@ -27,6 +27,7 @@ model User {
   QuoteReaction QuoteReaction[]
   UserImage     UserImage[]
   PostDraft     PostDraft?
+  PostComment   PostComment[]
 }
 
 enum Role {
@@ -39,11 +40,23 @@ enum Role {
 
 // News post
 model Post {
+  id          Int           @id @default(autoincrement())
+  title       String
+  content     String
+  author      User          @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  PostComment PostComment[]
+}
+
+model PostComment {
   id        Int      @id @default(autoincrement())
-  title     String
   content   String
   author    User     @relation(fields: [userId], references: [id])
   userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

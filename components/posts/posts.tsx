@@ -58,7 +58,7 @@ export default function Posts() {
             </div>
             <div className="flex flex-col justify-center items-center space-y-6 mt-6">
                 <div className="w-3/4">
-                    {posts.toReversed().map((post) => (
+                    {posts.map((post) => (
                         <PostComponent
                             key={post.id}
                             post={post}
