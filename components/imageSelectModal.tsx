@@ -4,10 +4,11 @@ import Modal, { ModalTab } from "./modal";
 import { ImageUpload } from "./imageUpload";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { TrashIcon } from "./icons";
+import ConfirmationDialogue from "./confirmationDialogue";
 
 
 export function ImageSelectModal({ onSelect, onCancel }: { onSelect?: (image: string) => void, onCancel?: () => void }) {
-
     return (
         <Modal onClose={() => onCancel?.()}>
             <ModalTab name="Velg">
@@ -37,15 +38,42 @@ function ViewUploadedImages({ onSelect }: { onSelect?: (image: string) => void }
     const [images, setImages] = useState<string[]>([]);
     const session = useSession();
     const [loading, setLoading] = useState(true);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [deleteImage, setDeleteImage] = useState<string | undefined>();
 
-    useEffect(() => {
+    const fetchImages = async () => {
         if (!session.data?.user) return;
         fetch("/api/users/" + session.data.user.id + "/images/").then(res => res.json()).then(data => {
             setImages(data);
             setLoading(false);
         });
 
+    }
+
+    useEffect(() => {
+        fetchImages();
     }, [session.data?.user]);
+
+    const handleDelete = async () => {
+        if (!deleteImage) return;
+
+        await fetch("api/storage/images/", {
+            method: "DELETE",
+            body: JSON.stringify({ image: deleteImage }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(res => res.json()).then(data => {
+            if (data.error) {
+                setShowDeleteConfirmation(false);
+                console.error(data.error);
+            } else {
+                setImages(images.filter((image) => image !== deleteImage));
+                setShowDeleteConfirmation(false);
+                fetchImages();
+            }
+        })
+    }
 
     const imageSkeleton = (key: string) => {
         return (
@@ -58,13 +86,20 @@ function ViewUploadedImages({ onSelect }: { onSelect?: (image: string) => void }
             {loading && [1, 2, 3, 4, 5, 6].map((a) => imageSkeleton(a.toString()))}
             {!loading && images.map((image) => {
                 return (
-                    <button key={image} className="bg-neutral-100 shadow-lg self-center p-1 rounded-md border-2 hover:border-neutral-800 border-transparent h-40 w-40 grid justify-items-center items-center" onClick={() => {
-                        onSelect?.(image);
-                    }}>
-                        <Image src={image} width={140} height={140} alt="uploaded image" className="rounded-md" />
-                    </button>
+                    <div className="relative" key={image}>
+                        <button className="relative bg-neutral-100 shadow-lg self-center p-1 rounded-md border-2 hover:border-neutral-800 border-transparent h-40 w-40 grid justify-items-center items-center" onClick={() => {
+                            onSelect?.(image);
+                        }}>
+                            <Image src={image} width={140} height={140} alt="uploaded image" className="rounded-md" />
+                        </button>
+
+                        <button className="right-0 top-0 absolute w-fit h-fit bg-white rounded-md p-1" onClick={() => { setShowDeleteConfirmation(true); setDeleteImage(image) }}>
+                            <TrashIcon className="" />
+                        </button>
+                    </div>
                 )
             })}
-        </div>
+            {showDeleteConfirmation && <ConfirmationDialogue message="Er du sikker på at du vil slette dette nydelige bildet?" onCancel={() => { setShowDeleteConfirmation(false); setDeleteImage(undefined) }} onConfirm={handleDelete} />}
+        </div >
     )
 }
