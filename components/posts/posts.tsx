@@ -1,6 +1,6 @@
 "use client"
 
-import { Post } from "@prisma/client";
+import { Post, Prisma } from "@prisma/client";
 import { useEffect, useState } from "react";
 import MarkdownEditor from "../markdown/markdownEditor";
 import { useSession } from "next-auth/react";
@@ -8,9 +8,19 @@ import { permission } from "@/types/permissions";
 import { EditIcon, TrashIcon } from "../icons";
 import NewPostButton from "./newPostButton";
 import Separator from "../separator";
+import ConfirmationDialogue from "../confirmationDialogue";
+
+const postWithAuthor = Prisma.validator<Prisma.PostDefaultArgs>()({
+    include: {
+        author: true,
+    }
+})
+
+export type postWithAuthor = Prisma.PostGetPayload<typeof postWithAuthor>;
+
 
 export default function Posts() {
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<postWithAuthor[]>([]);
     const session = useSession();
 
     useEffect(() => {
@@ -25,7 +35,7 @@ export default function Posts() {
         setPosts(data);
     }
 
-    const handleDelete = async (post: Post) => {
+    const handleDelete = async (post: postWithAuthor) => {
         await fetch("/api/posts/" + post.id, {
             method: "DELETE"
         }).then(res => res.json()).then((res) => {
@@ -37,7 +47,7 @@ export default function Posts() {
         });
     }
 
-    const handleEdit = async (post: Post) => {
+    const handleEdit = async (post: postWithAuthor) => {
         console.log("Edit post", post);
     }
 
@@ -58,29 +68,60 @@ export default function Posts() {
                     ))}
                 </div>
             </div>
-            {session.data?.user.role.permissions.includes(permission.createPost) && <NewPostButton />}
+            {session.data?.user.role.permissions.includes(permission.createPost) && <NewPostButton onPostPublish={fetchPosts} />}
         </div>
     );
 }
 
-function PostComponent({ post, editable, onEdit, onDelete }: { post: Post, editable?: boolean, onEdit?: (post: Post) => void, onDelete?: (post: Post) => void }) {
+function PostComponent({ post, editable, onEdit, onDelete }: { post: postWithAuthor, editable?: boolean, onEdit?: (post: Post) => void, onDelete?: (post: Post) => void }) {
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
     return (
-        <div className="w-full relative z-0 bg-white rounded-lg p-2 flex flex-col">
-            <div className="absolute right-6 top-6 flex flex-row space-x-2">
-                <button onClick={() => onEdit?.(post)}>
-                    <EditIcon className="size-6" />
-                </button>
-                <button onClick={() => onDelete?.(post)}>
-                    <TrashIcon className="size-6" />
-                </button>
+        <div className="w-full relative z-0 bg-white rounded-lg mb-10 overflow-hidden">
+            <div className="p-4 flex flex-col mb-4">
+                {editable &&
+                    <div className="absolute right-6 top-6 flex flex-row space-x-2">
+                        <button onClick={() => onEdit?.(post)}>
+                            <EditIcon className="size-6" />
+                        </button>
+                        <button onClick={() => setShowConfirmDelete(true)}>
+                            <TrashIcon className="size-6" />
+                        </button>
+                    </div>
+                }
+                <div className="w-full text-center p-4 flex flex-col items-center justify-center">
+                    <div className="font-bold text-2xl">
+                        {post.title}
+                    </div>
+                    <div className="grid grid-cols-2 grid-flow-col-dense font-extralight text-xs">
+                        <div className="w-fit justify-self-end">
+                            {new Date(post.createdAt).toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center w-1/3 justify-self-center">
+                            <div className="w-full border-t border-neutral-800 rounded-xl"></div>
+                        </div>
+                        <div>
+                            <div className="w-fit justify-self-start">
+                                {post.author.firstname}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="w-3/4 self-center">
+                    <Separator />
+                </div>
+                <MarkdownEditor content={post.content} editable={false} />
+                {showConfirmDelete && <ConfirmationDialogue message="Er du sikker på at du vil slette dette innlegget?" onCancel={() => setShowConfirmDelete(false)} onConfirm={() => onDelete?.(post)} />}
             </div>
-            <div className="w-full text-center font-bold text-2xl p-4">
-                {post.title}
+            <div className="bg-neutral-200 w-full h-full p-2">
+                <div className="text-lg w-full text-center font-semibold">
+                    Kommentarer
+                </div>
+
+                <div className="text-sm text-center">
+                    Ingen kommentarer enda...
+                </div>
             </div>
-            <div className="w-3/4 self-center">
-                <Separator />
-            </div>
-            <MarkdownEditor content={post.content} editable={false} />
-        </div>
+        </div >
     );
 }

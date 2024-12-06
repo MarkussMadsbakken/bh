@@ -43,6 +43,7 @@ export default function NewPostButton({ onPostPublish }: { onPostPublish?: () =>
                 handleError(res.error);
             } else {
                 setModalOpen(false);
+                onPostPublish?.();
             }
         })
     }

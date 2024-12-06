@@ -14,9 +14,7 @@ export async function GET(req, ctx) {
 
 export const POST = auth(async function POST(req, ctx) {
     const formData = await req.formData();
-    console.log(formData);
     const filename = randomUUID();
-    console.log(filename);
 
     const auth = await req.auth;
 
@@ -56,4 +54,39 @@ export const POST = auth(async function POST(req, ctx) {
     });
 
     return NextResponse.json({ message: "Success", image: filename }, { status: 200 });
+});
+
+export const DELETE = auth(async function DELETE(req, ctx) {
+    const auth = await req.auth;
+    const body = await req.json();
+    const imageUrl: string = body.image;
+    const imageId = imageUrl.split("/").at(-1);
+
+    if (!auth?.user) {
+        return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    if (!imageId) {
+        return NextResponse.json({ error: "Invalid image" }, { status: 400 });
+    }
+
+    const dbImage = await prisma.userImage.findUnique({
+        where: {
+            image: imageUrl,
+            userId: auth.user.id
+        }
+    });
+
+    if (!dbImage) {
+        return NextResponse.json({ error: "Image not found" }, { status: 404 });
+    }
+
+    await minio.removeObject(bucket, imageId);
+    await prisma.userImage.delete({
+        where: {
+            id: dbImage.id
+        }
+    });
+
+    return NextResponse.json({ message: "Success" }, { status: 200 });
 });

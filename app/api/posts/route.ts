@@ -6,7 +6,14 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 export async function GET(req, ctx) {
-    const posts = await prisma.post.findMany();
+    const posts = await prisma.post.findMany({
+        include: {
+            author: true
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
     return NextResponse.json(posts);
 }
 
@@ -38,9 +45,6 @@ export const POST = auth(async function POST(req, ctx) {
             userId: auth.user.id
         }
     });
-
-
-    console.log(post);
 
     // delete draft!
     if (post) {
