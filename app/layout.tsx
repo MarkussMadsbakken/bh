@@ -28,6 +28,7 @@ export default function RootLayout({
             {children}
           </PageEnter>
         </LayoutWrapper>
+
       </body>
     </html>
   );

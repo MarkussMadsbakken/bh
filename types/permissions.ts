@@ -9,6 +9,8 @@ export enum permission {
     addreaction = "addreaction",
     createPost = "creatPost",
     editAllPosts = "editAllPosts",
+    createComment = "createComment",
+    deleteAllComments = "deleteAllComments",
 }
 
 export type Role = {
@@ -29,6 +31,8 @@ export const roles = {
                 permission.addreaction,
                 permission.createPost,
                 permission.editAllPosts,
+                permission.createComment,
+                permission.deleteAllComments
             ],
             shortname: "Leder"
         } as Role,
@@ -43,7 +47,9 @@ export const roles = {
                 permission.editallquotes,
                 permission.addreaction,
                 permission.createPost,
-                permission.editAllPosts
+                permission.editAllPosts,
+                permission.createComment,
+                permission.deleteAllComments
             ],
             shortname: "BH Indeks"
         } as Role,
@@ -58,7 +64,9 @@ export const roles = {
                 permission.editallquotes,
                 permission.addreaction,
                 permission.createPost,
-                permission.editAllPosts
+                permission.editAllPosts,
+                permission.createComment,
+                permission.deleteAllComments
             ],
             shortname: "Admin"
         } as Role,
@@ -69,7 +77,8 @@ export const roles = {
                 permission.viewfines,
                 permission.viewquotes,
                 permission.createquote,
-                permission.addreaction
+                permission.addreaction,
+                permission.createComment,
             ],
             shortname: "Medlem"
         } as Role,

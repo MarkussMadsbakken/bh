@@ -40,10 +40,6 @@ export default function Modal(props: ModalProps) {
         hidden: { opacity: 0, display: 'none' },
     };
 
-    const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-    };
-
     useClickOutside(modalRef, () => {
         if (modalId !== null && isTopModal(modalId)) {
             props.onClose?.();

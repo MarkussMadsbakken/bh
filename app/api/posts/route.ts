@@ -8,7 +8,12 @@ const prisma = new PrismaClient();
 export async function GET(req, ctx) {
     const posts = await prisma.post.findMany({
         include: {
-            author: true
+            author: true,
+            PostComment: {
+                include: {
+                    author: true
+                }
+            }
         },
         orderBy: {
             createdAt: 'desc'
@@ -48,15 +53,19 @@ export const POST = auth(async function POST(req, ctx) {
 
     // delete draft!
     if (post) {
-        await prisma.postDraft.update({
-            where: {
-                userId: auth.user.id
-            },
-            data: {
-                content: "",
-                title: ""
-            }
-        })
+        try {
+            await prisma.postDraft.update({
+                where: {
+                    userId: auth.user.id
+                },
+                data: {
+                    content: "",
+                    title: ""
+                }
+            })
+        } catch (e) {
+
+        }
     }
 
     return NextResponse.json({ message: "Success" }, { status: 200 });

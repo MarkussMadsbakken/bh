@@ -1,26 +1,34 @@
 "use client"
 
 import { Post, Prisma } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MarkdownEditor from "../markdown/markdownEditor";
 import { useSession } from "next-auth/react";
 import { permission } from "@/types/permissions";
-import { EditIcon, TrashIcon } from "../icons";
+import { EditIcon, LoadingSpinner, TrashIcon } from "../icons";
 import NewPostButton from "./newPostButton";
 import Separator from "../separator";
 import ConfirmationDialogue from "../confirmationDialogue";
+import { Button, TextInput } from "../input";
+import Link from "next/link";
+import PostComment, { commentWithAuthor } from "./postComment";
 
-const postWithAuthor = Prisma.validator<Prisma.PostDefaultArgs>()({
+const postWithAuthorAndComments = Prisma.validator<Prisma.PostDefaultArgs>()({
     include: {
         author: true,
-    }
-})
+        PostComment: {
+            include: {
+                author: true
+            }
+        }
+    },
+});
 
-export type postWithAuthor = Prisma.PostGetPayload<typeof postWithAuthor>;
+export type postWithAuthorAndComments = Prisma.PostGetPayload<typeof postWithAuthorAndComments>;
 
 
 export default function Posts() {
-    const [posts, setPosts] = useState<postWithAuthor[]>([]);
+    const [posts, setPosts] = useState<postWithAuthorAndComments[]>([]);
     const session = useSession();
 
     useEffect(() => {
@@ -35,7 +43,7 @@ export default function Posts() {
         setPosts(data);
     }
 
-    const handleDelete = async (post: postWithAuthor) => {
+    const handleDelete = async (post: postWithAuthorAndComments) => {
         await fetch("/api/posts/" + post.id, {
             method: "DELETE"
         }).then(res => res.json()).then((res) => {
@@ -47,7 +55,7 @@ export default function Posts() {
         });
     }
 
-    const handleEdit = async (post: postWithAuthor) => {
+    const handleEdit = async (post: postWithAuthorAndComments) => {
         console.log("Edit post", post);
     }
 
@@ -73,12 +81,32 @@ export default function Posts() {
     );
 }
 
-function PostComponent({ post, editable, onEdit, onDelete }: { post: postWithAuthor, editable?: boolean, onEdit?: (post: Post) => void, onDelete?: (post: Post) => void }) {
+function PostComponent({ post, editable, onEdit, onDelete }: { post: postWithAuthorAndComments, editable?: boolean, onEdit?: (post: Post) => void, onDelete?: (post: Post) => void }) {
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [comments, setComments] = useState<commentWithAuthor[]>(post.PostComment);
+    const session = useSession();
+
+    const handleCommentDelete = async (comment: commentWithAuthor) => {
+        setComments(comments.filter(c => c.id !== comment.id));
+
+        await fetch(`/api/posts/${post.id}/comments/${comment.id}`, {
+            method: "DELETE",
+        }).then(res => res.json()).then((res) => {
+            if (res.error) {
+                console.error(res.error);
+            } else {
+                // refetch comments
+            }
+        });
+    }
+
+    const handleCommentPublish = (comment: commentWithAuthor) => {
+        setComments([...comments, comment]);
+    }
 
     return (
         <div className="w-full relative z-0 bg-white rounded-lg mb-10 overflow-hidden">
-            <div className="p-4 flex flex-col mb-4">
+            <div className="p-4 flex flex-col mb-4 shadow-lg">
                 {editable &&
                     <div className="absolute right-6 top-6 flex flex-row space-x-2">
                         <button onClick={() => onEdit?.(post)}>
@@ -101,9 +129,11 @@ function PostComponent({ post, editable, onEdit, onDelete }: { post: postWithAut
                             <div className="w-full border-t border-neutral-800 rounded-xl"></div>
                         </div>
                         <div>
-                            <div className="w-fit justify-self-start">
-                                {post.author.firstname}
-                            </div>
+                            <Link href={`/users/${post.author.username}`}>
+                                <div className="w-fit justify-self-start hover:underline">
+                                    {post.author.firstname}
+                                </div>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -113,15 +143,78 @@ function PostComponent({ post, editable, onEdit, onDelete }: { post: postWithAut
                 <MarkdownEditor content={post.content} editable={false} />
                 {showConfirmDelete && <ConfirmationDialogue message="Er du sikker på at du vil slette dette innlegget?" onCancel={() => setShowConfirmDelete(false)} onConfirm={() => onDelete?.(post)} />}
             </div>
-            <div className="bg-neutral-200 w-full h-full p-2">
-                <div className="text-lg w-full text-center font-semibold">
+            <div className="w-full h-full p-6">
+                <div className="text-lg w-full text-center font-semibold mb-2">
                     Kommentarer
                 </div>
 
-                <div className="text-sm text-center">
-                    Ingen kommentarer enda...
+                {session.data?.user.role.permissions.includes(permission.addreaction) &&
+                    <NewCommentForm postId={post.id} onCommentPublish={(c) => {
+                        handleCommentPublish(c);
+                    }} />
+                }
+                <div className="space-y-4">
+                    {comments.length > 0 ?
+                        comments.map((comment) =>
+                        (
+                            <PostComment key={comment.id} comment={comment}
+                                canDelete={comment.author.id == session.data?.user.id || session.data?.user.role.permissions.includes(permission.deleteAllComments)}
+                                onDelete={() => handleCommentDelete(comment)}
+                            />
+                        )
+                        ) :
+
+                        <div className="text-sm text-center">
+                            Ingen kommentarer enda...
+                        </div>
+                    }
                 </div>
             </div>
         </div >
     );
+}
+
+function NewCommentForm({ onCommentPublish, postId }: { onCommentPublish?: (comment: commentWithAuthor) => void, postId: number }) {
+    const [comment, setComment] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+    const formRef = useRef<HTMLInputElement>(null);
+
+    const handlePublish = async () => {
+        if (comment === "") return;
+        if (loading) return;
+
+        setLoading(true);
+
+        const res = await fetch(`/api/posts/${postId}/comments`, {
+            method: "POST",
+            body: JSON.stringify({ comment: comment }),
+        }).then(res => res.json());
+
+
+        if (res.error) {
+            console.log(res.error);
+            setLoading(false);
+            return;
+        }
+
+        if (!res.comment) {
+            console.error("Bad response from server");
+            setLoading(false);
+            return;
+        }
+
+        setComment("");
+        onCommentPublish?.(res.comment);
+        setLoading(false);
+    }
+
+    return (
+        <div className="w-full flex flex-row space-x-2 h-16 p-2">
+            <TextInput placeholder="Skriv en kommentar..." className="w-full" onChange={setComment} onEnterClear onSubmit={handlePublish} ref={formRef} />
+            <Button className="bg-neutral-200 p-2 rounded-lg w-1/4" onClick={handlePublish}>
+                {loading ? <LoadingSpinner /> : "Publiser"}
+            </Button>
+        </div>
+    )
+
 }

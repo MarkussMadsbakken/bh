@@ -42,7 +42,7 @@ export const DELETE = auth(async function DELETE(req, ctx) {
     await prisma.post.delete({
         where: {
             id: parseInt(params.postid as string)
-        }
+        },
     });
 
     return NextResponse.json({ message: "Success" }, { status: 200 });
