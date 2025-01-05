@@ -7,7 +7,7 @@ export default function PageEnter({ children }: { children: React.ReactNode }) {
     return (
         <>
             <motion.div
-                className="h-screen w-screen z-[100] bg-white absolute top-0 left-0"
+                className="h-screen w-screen z-[100] bg-white sticky top-0 left-0"
                 initial={{ y: 0 }}
                 animate={{ y: "-100vh", display: "none" }}
                 transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
