@@ -14,7 +14,7 @@ export default function PageEnter({ children }: { children: React.ReactNode }) {
             >
             </motion.div>
             <motion.div
-                className="z-[100] relative"
+                className="z-[100] sticky w-full top-0"
                 initial={{ y: "100vh" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}

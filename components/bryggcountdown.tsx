@@ -42,13 +42,13 @@ export default function BryggCountdown({ when }: { when: Date }) {
             <div className="font-normal text-xl">
                 Neste brygging om:
             </div>
-            <div className="flex flex-row h-18">
+            <div className="flex flex-row h-18 space-x-8">
                 {(loaded) &&
                     <>
-                        <CountdownNumber number={days} />
-                        <CountdownNumber number={hour} />
-                        <CountdownNumber number={min} />
-                        <CountdownNumber number={sec} />
+                        <CountdownNumber number={days} dayText="dager" />
+                        <CountdownNumber number={hour} dayText="timer" />
+                        <CountdownNumber number={min} dayText="minutter" />
+                        <CountdownNumber number={sec} dayText="sekunder" />
                     </>
                 }
             </div >
@@ -56,20 +56,23 @@ export default function BryggCountdown({ when }: { when: Date }) {
     )
 }
 
-function CountdownNumber({ number }: { number: number }) {
+function CountdownNumber({ number, dayText }: { number: number, dayText: string }) {
     return (
-        <AnimatePresence mode="popLayout">
-            <motion.div className="text-3xl font-bold w-14 max-w-14 m-2 rounded-lg p-2 bg-neutral-100"
-                initial={{ opacity: 0, rotateX: -180 }}
-                animate={{ opacity: [0, 0, 1], y: 0, rotateX: 0 }}
-                exit={{ opacity: [1, 1, 0, 0, 0], scale: 1, rotateX: 180, x: [-8, -8], y: [-8, -8] }}
-                key={number}
-                transition={{ duration: 0.25 }}
-            >
-                <div className="text-center">
-                    {number > 9 ? number : `0${number}`}
-                </div>
-            </motion.div>
-        </AnimatePresence>
+        <div className="flex flex-col items-center">
+            <AnimatePresence mode="popLayout">
+                <motion.div className="text-3xl font-bold w-14 max-w-14 m-2 rounded-lg p-2 bg-neutral-100"
+                    initial={{ opacity: 0, rotateX: -180 }}
+                    animate={{ opacity: [0, 0, 1], y: 0, rotateX: 0 }}
+                    exit={{ opacity: [1, 1, 0, 0, 0], scale: 1, rotateX: 180, x: [-8, -8], y: [-8, -8] }}
+                    key={number}
+                    transition={{ duration: 0.25 }}
+                >
+                    <div className="text-center">
+                        {number > 9 ? number : `0${number}`}
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+            {dayText}
+        </div>
     )
 }

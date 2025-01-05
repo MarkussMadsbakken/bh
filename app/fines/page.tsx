@@ -1,4 +1,4 @@
-import Fine, { FineProps } from "@/components/fines/fine";
+import Fine, { FineProps, FineSkeleton } from "@/components/fines/fine";
 import NewFineButton from "@/components/fines/newFineButton";
 import { permission } from "@/types/permissions";
 import { auth } from "@/util/auth";
@@ -29,8 +29,6 @@ export default async function FinesPage() {
         }
     )
         .then(res => res.json());
-
-
 
     return (
         <>

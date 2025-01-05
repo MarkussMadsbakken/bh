@@ -63,6 +63,45 @@ export default async function Fine(props: FineProps) {
     )
 }
 
+export function FineSkeleton() {
+    return (
+        <Collapsible title={
+            <div className="flex flex-col p-2 h-full w-full">
+                <div className="flex flex-row h-full w-full text-lg justify-between">
+                    <div className="flex flex-row items-center">
+                        <div className="rounded-full animate-pulse h-10 w-10 bg-gray-300 mr-4" />
+                        <div className="h-fit">
+                            <div className="animate-pulse bg-gray-300 h-6 w-56 rounded-md" />
+                        </div>
+                    </div>
+                    <div className="mr-5 grid grid-cols-2 items-center space-x-2">
+                        <div className="animate-pulse bg-gray-300 h-4 w-4 rounded-md" />
+                        <div className="animate-pulse bg-gray-300 h-4 w-4 rounded-md" />
+                    </div>
+                </div>
+                <div className="flex flex-row justify-between ml-2 text-sm">
+                    <div>
+                        <div className="animate-pulse bg-gray-300 h-4 w-48 mt-1 rounded-md" />
+                    </div>
+                    <div className="mr-5 w-5 text-center">
+                        <div className="animate-pulse bg-gray-300 h-4 w-6 rounded-md" />
+                    </div>
+                </div>
+            </div>
+
+        }>
+            <div className="flex flex-col bg-gray-100 p-4">
+                <div className="flex-row justify-between">
+                    <div className="whitespace-pre-wrap">
+                        <div className="animate-pulse bg-gray-300 h-4 w-96 rounded-md" />
+                    </div>
+                </div>
+            </div>
+        </Collapsible>
+
+    )
+}
+
 function ApprovedIcon({ approved }: { approved: boolean }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
