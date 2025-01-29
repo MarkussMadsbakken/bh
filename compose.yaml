@@ -10,6 +10,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/postgres"
       MINIO_ENDPOINT: "http://minio:9000"
+    entrypoint: ["sh", "-c", "npx prisma migrate deploy && node server.js"]
 
   postgres:
     image: postgres:15-alpine

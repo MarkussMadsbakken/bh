@@ -26,15 +26,23 @@ COPY . .
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN npx prisma generate
+RUN npm exec auth secret
+RUN echo $'\nAUTH_TRUST_HOST=true' >> /app/.env.local
 
 # Prisma and build
-RUN npx prisma migrate deploy && npx prisma generate && \
+RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
   else echo "Lockfile not found." && exit 1; \
   fi
+
+FROM builder AS final
+WORKDIR /app
+COPY --from=builder /app/prisma /app/prisma
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -57,9 +65,9 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.env.local .env.local
 
-COPY .env .env
-COPY .env.local .env.local
+COPY /prisma ./prisma
 
 USER nextjs
 
