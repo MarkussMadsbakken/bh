@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deployment_lock
+      cancel-in-progress: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.KEY }}" > ~/.ssh/key
+          chmod 600 ~/.ssh/key
+          ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create .env file
+        run: |
+          echo 'DATABASE_URL=${{ secrets.DATABASE_URL }}' > .env
+          echo 'MINIO_USER=${{ secrets.MINIO_USER }}' >> .env
+          echo 'MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}' >> .env
+
+
+      - name: Copy .env to OpenStack server
+        run: |
+          scp -v -i ~/.ssh/key .env ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.PATH }}
+
+      - name: Deploy to OpenStack server
+        run: |
+          ssh -v -i ~/.ssh/key ${{ secrets.USER }}@${{ secrets.HOST }} << 'ENDSSH'
+          cd ${{ secrets.PATH }}
+          chmod 0600 .env
+          git pull -f
+          make prod
+          ENDSSH
