@@ -1,8 +1,12 @@
 .PHONY: prod
 prod:
-        docker build -t bh:latest .
-        - docker container stop bh
-        - docker container rm bh
-        - prisma migrate deploy
-        docker run --env-file .env -p 6000:3000 --name bh --restart unless-stopped -d bh:latest
-        - docker image prune -f
+	- docker compose -f compose.yaml down
+	docker compose -f compose.yaml up --build --force-recreate -d nextjs minio
+
+
+dev:
+	docker compose -f compose.yaml down
+	docker compose -f compose.yaml up -d postgres
+	sleep 3
+	docker compose -f compose.yaml up --build --force-recreate -d nextjs minio
+

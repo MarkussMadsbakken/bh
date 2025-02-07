@@ -1,30 +1,44 @@
-version: '3.8'
+version: "3.8"
 services:
   nextjs:
     build: .
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
       - minio
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/postgres"
-      MINIO_ENDPOINT: "http://minio:9000"
     entrypoint: ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - MINIO_ENDPOINT="http://minio:9000"
+      - MINIO_USER=${MINIO_ROOT_USER}
+      - MINIO_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - bh_network
 
   postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+    image: postgres:latest
     ports:
       - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres
+    networks:
+      - bh_network
 
   minio:
     image: minio/minio:latest
     command: server /data
+    expose:
+      - 9000
     ports:
       - "9000:9000"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - bh_network
+
+networks:
+  bh_network:
+    driver: bridge
