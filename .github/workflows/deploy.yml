@@ -29,6 +29,7 @@ jobs:
           echo 'DATABASE_URL=${{ secrets.DATABASE_URL }}' > .env
           echo 'MINIO_USER=${{ secrets.MINIO_USER }}' >> .env
           echo 'MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}' >> .env
+          echo 'AUTH_SECRET=${{ secrets.AUTH_SECRET }}' >> .env
 
       - name: Copy .env to OpenStack server
         run: |
