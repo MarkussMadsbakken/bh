@@ -30,6 +30,7 @@ jobs:
           echo 'MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}' >> .env
           echo 'MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}' >> .env
           echo 'AUTH_SECRET="${{ secrets.AUTH_SECRET }}"' >> .env
+          echo 'MINIO_ENDPOINT=https://${{ secrets.HOST }}:9000' >> .env
 
       - name: Copy .env to OpenStack server
         run: |
